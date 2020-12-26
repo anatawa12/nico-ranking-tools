@@ -35,5 +35,28 @@ cwd
          `--ranking_xxxxxx.json # レスポンスを連番で
 ```
 
+## merge-nico-data
+
+[get-nico-data] で取得したデータを各週毎に一つのjsonにまとめる
+
+### 使い方
+
+```
+merge-nico-data <options> <target directory>
+```
+
+`out`ディレクトリを引数に指定する
+
+### オプション
+
+- `-a`: バージョンごとに`merged_xx.json`をカレントディレクトリに作成する
+- `-d`: ranking_xxxx.jsonおよびversion.jsonを削除
+
+### 出力
+
+それぞれのディレクトリに`merged.json`が作成される。
+rankingと同形式にmeta内にlast_modifiedが追加された形のjsonとなる。
+
+[get-nico-data]: #get-nico-data
 [snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
 [SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
