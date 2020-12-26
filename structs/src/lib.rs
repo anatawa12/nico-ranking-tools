@@ -37,8 +37,15 @@ pub struct RankingVideoData {
     pub view_counter: u32,
     #[serde(rename = "startTime")]
     pub start_time: DateTime<FixedOffset>,
+    #[serde(skip_serializing_if = "is_max_value_u64")]
+    #[serde(default = "u64::max_value")]
+    pub ranking_counter: u64,
 }
 
 fn is_max_value_u32(v: &u32) -> bool {
     *v == u32::max_value()
+}
+
+fn is_max_value_u64(v: &u64) -> bool {
+    *v == u64::max_value()
 }
