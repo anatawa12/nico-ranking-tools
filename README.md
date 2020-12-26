@@ -1,4 +1,4 @@
-Tools for viewCount * length of video ranking
+Tools for ranking of the sum time humanity has watched a video.
 ====
 
 人類がその動画にかけた時間のランキング集計のために作成したツール
