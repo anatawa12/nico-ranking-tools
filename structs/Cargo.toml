@@ -1,5 +1,5 @@
 [package]
-name = "merge-nico-data"
+name = "structs"
 version = "0.1.0"
 authors = ["anatawa12 <anatawa12@icloud.com>"]
 edition = "2018"
@@ -7,11 +7,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-regex = { version = "1" }
-lazy_static = { version = "1" }
-num = { version = "0.3" }
-indicatif = { version = "0.15" }
-structs = { path = "../structs", version="0.1.0" }

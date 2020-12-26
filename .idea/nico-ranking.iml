@@ -4,8 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/get-nico-data/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/merge-nico-data/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/structs/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/get-nico-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/merge-nico-data/target" />
+      <excludeFolder url="file://$MODULE_DIR$/structs/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

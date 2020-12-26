@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use crate::structs::{RankingVideoData, RankingMeta, RankingJson};
+use structs::{RankingVideoData, RankingMeta, RankingJson};
 use chrono::{FixedOffset, DateTime};
 use std::fs::File;
 use lazy_static::lazy_static;

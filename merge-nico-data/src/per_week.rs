@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::options::Options;
 use crate::progress::Progress;
-use crate::structs::{RankingVideoData, VersionJson};
+use structs::{RankingVideoData, VersionJson};
 use crate::common::{process_a_week, output_to_json, remove_a_week};
 use std::fs::File;
 

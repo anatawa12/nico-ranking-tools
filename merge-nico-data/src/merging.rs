@@ -2,7 +2,7 @@ use chrono::{DateTime, FixedOffset};
 use std::fs::File;
 use std::path::{PathBuf};
 use crate::options::Options;
-use crate::structs::{VersionJson, RankingVideoData};
+use structs::{VersionJson, RankingVideoData};
 use crate::common::{output_to_json, process_a_week, remove_a_week};
 use crate::progress::Progress;
 

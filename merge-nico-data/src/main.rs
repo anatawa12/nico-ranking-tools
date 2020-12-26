@@ -1,5 +1,4 @@
 mod options;
-mod structs;
 mod merging;
 mod util;
 mod common;
