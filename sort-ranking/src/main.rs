@@ -27,7 +27,7 @@ fn main() {
     ranking.data.par_sort_by_key(|data| { !data.ranking_counter });
 
     eprintln!("writing...");
-    let output_file = File::open(options.output_bin).unwrap();
+    let output_file = File::create(options.output_bin).unwrap();
     let output_file = BufWriter::new(output_file);
     bincode::serialize_into(output_file,&ranking).unwrap();
 }
