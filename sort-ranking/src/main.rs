@@ -3,12 +3,6 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use structs::{RankingVideoDataBin, RankingBin};
 use rayon::prelude::*;
-use indicatif::{ProgressBar, ProgressStyle};
-use std::thread;
-use std::sync::atomic::{AtomicU64, AtomicBool};
-use std::sync::{atomic, Arc};
-use std::time::Duration;
-use std::ops::Not;
 
 mod options;
 
