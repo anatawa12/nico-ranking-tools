@@ -49,3 +49,24 @@ fn is_max_value_u32(v: &u32) -> bool {
 fn is_max_value_u64(v: &u64) -> bool {
     *v == u64::max_value()
 }
+
+#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
+pub struct RankingBin {
+    pub meta: RankingMeta,
+    pub data: Vec<RankingVideoDataBin>,
+}
+
+#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
+pub struct RankingVideoDataBin {
+    #[serde(rename = "contentId")]
+    pub content_id: String,
+    #[serde(rename = "lengthSeconds")]
+    pub length_seconds: u32,
+    #[serde(rename = "viewCounter")]
+    pub view_counter: u32,
+    #[serde(rename = "startTime")]
+    pub start_time: DateTime<FixedOffset>,
+    pub ranking_counter: u64,
+}
