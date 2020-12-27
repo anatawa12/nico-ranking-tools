@@ -3,7 +3,7 @@ use std::fs::File;
 use std::path::{PathBuf};
 use crate::options::Options;
 use structs::{VersionJson, RankingVideoData};
-use crate::common::{output_to_json, process_a_week, remove_a_week};
+use crate::common::{process_a_week, remove_a_week, output_to_bincode};
 use crate::progress::Progress;
 
 pub(crate) fn process_merge_weeks(
@@ -25,8 +25,8 @@ pub(crate) fn process_merge_weeks(
             File::open(week_dir.join("version.json")).unwrap()).unwrap();
 
         if changed_version(&version_json, &last_modified) {
-            let merged_name = format!("merged_{}.json", ranking_index);
-            output_to_json(merged_name, data, last_modified.unwrap());
+            let merged_name = format!("merged_{}.bin", ranking_index);
+            output_to_bincode(merged_name, data, last_modified.unwrap());
             ranking_index += 1;
             data = Vec::new();
         }
@@ -41,8 +41,8 @@ pub(crate) fn process_merge_weeks(
     }
 
     if last_modified.is_some() {
-        let merged_name = format!("merged_{}.json", ranking_index);
-        output_to_json(merged_name, data, last_modified.unwrap());
+        let merged_name = format!("merged_{}.bin", ranking_index);
+        output_to_bincode(merged_name, data, last_modified.unwrap());
     }
 
     progress.new_generation(weeks.len() as u64);

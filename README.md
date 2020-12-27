@@ -49,12 +49,12 @@ merge-nico-data <options> <target directory>
 
 ### オプション
 
-- `-a`: バージョンごとに`merged_xx.json`をカレントディレクトリに作成する
+- `-a`: バージョンごとに`merged_xx.bin`をカレントディレクトリに作成する
 - `-d`: ranking_xxxx.jsonおよびversion.jsonを削除
 
 ### 出力
 
-それぞれのディレクトリに`merged.json`が作成される。
+それぞれのディレクトリに`merged.bin`が作成される。
 rankingと同形式にmeta内にlast_modifiedが追加された形のjsonとなる。
 
 [get-nico-data]: #get-nico-data

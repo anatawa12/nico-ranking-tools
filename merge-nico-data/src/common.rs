@@ -14,13 +14,13 @@ lazy_static! {
     pub(crate) static ref WEEK_DIR_NAME_REGEX: Regex = Regex::new(r#"^\d{4}-\d{2}-\d{2}$"#).unwrap();
 }
 
-pub(crate) fn output_to_json<P: AsRef<Path>>(
+pub(crate) fn output_to_bincode<P: AsRef<Path>>(
     merged_name: P,
     data: Vec<RankingVideoData>,
     last_modified: DateTime<FixedOffset>,
 ) {
     let merged_file = File::create(merged_name).unwrap();
-    serde_json::to_writer(BufWriter::new(merged_file), &RankingJson {
+    bincode::serialize_into(BufWriter::new(merged_file), &RankingJson {
         meta: RankingMeta {
             total_count: data.len() as u64,
             last_modified: Some(last_modified),
