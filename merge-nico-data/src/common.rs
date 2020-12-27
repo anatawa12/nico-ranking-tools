@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use structs::{RankingVideoData, RankingMeta, RankingJson};
+use structs::{RankingVideoData, RankingMeta, RankingJson, RankingBin, RankingVideoDataBin};
 use chrono::{FixedOffset, DateTime};
 use std::fs::File;
 use lazy_static::lazy_static;
@@ -20,12 +20,18 @@ pub(crate) fn output_to_bincode<P: AsRef<Path>>(
     last_modified: DateTime<FixedOffset>,
 ) {
     let merged_file = File::create(merged_name).unwrap();
-    bincode::serialize_into(BufWriter::new(merged_file), &RankingJson {
+    bincode::serialize_into(BufWriter::new(merged_file), &RankingBin {
         meta: RankingMeta {
             total_count: data.len() as u64,
             last_modified: Some(last_modified),
         },
-        data
+        data: data.iter().map(|d| RankingVideoDataBin {
+            content_id: d.content_id.clone(),
+            length_seconds: d.length_seconds,
+            view_counter: d.view_counter,
+            start_time: d.start_time,
+            ranking_counter: d.ranking_counter,
+        }).collect()
     }).unwrap();
 }
 

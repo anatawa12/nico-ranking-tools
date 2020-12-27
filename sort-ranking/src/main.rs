@@ -1,7 +1,7 @@
 use crate::options::{parse_options, RankingType};
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
-use structs::{RankingJson, RankingVideoData};
+use structs::{RankingVideoDataBin, RankingBin};
 use rayon::prelude::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::thread;
@@ -18,7 +18,7 @@ fn main() {
     eprintln!("reading file...");
     let input_file = File::open(options.input_bin).unwrap();
     let input_file = BufReader::new(input_file);
-    let mut ranking: RankingJson = bincode::deserialize_from(input_file).unwrap();
+    let mut ranking: RankingBin = bincode::deserialize_from(input_file).unwrap();
 
     eprintln!("generating ranking key...");
     let key_gen = key_generator_of(options.ranking_type);
@@ -38,7 +38,7 @@ fn main() {
     bincode::serialize_into(output_file,&ranking).unwrap();
 }
 
-fn key_generator_of(for_type: RankingType) -> Box<dyn Fn(&RankingVideoData) -> u64 + Sync> {
+fn key_generator_of(for_type: RankingType) -> Box<dyn Fn(&RankingVideoDataBin) -> u64 + Sync> {
     match for_type {
         RankingType::WatchSum => Box::new(|data| {
             data.length_seconds as u64 * data.view_counter as u64
