@@ -57,6 +57,27 @@ merge-nico-data <options> <target directory>
 それぞれのディレクトリに`merged.bin`が作成される。
 rankingと同形式にmeta内にlast_modifiedが追加された形のjsonとなる。
 
+## sort-ranking
+
+指定されたパラメータを使用したランキングを生成する。
+
+### 使い方
+
+```
+sort-ranking <input bin> <output bin> <ranking-type>
+```
+
+### オプション
+
+- `ranking-type`: ランキングの種類
+  - `watch-sum`: 再生回数*再生時間 のランキング
+  - `watch-cnt`: 再生回数 のランキング
+  - `watch-lng`: 再生時間 のランキング
+
+### 出力
+
+ranking_counterが指定された`merged.bin`形式
+
 [get-nico-data]: #get-nico-data
 [snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
 [SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
