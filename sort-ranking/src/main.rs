@@ -8,6 +8,7 @@ use std::thread;
 use std::sync::atomic::{AtomicU64, AtomicBool};
 use std::sync::{atomic, Arc};
 use std::time::Duration;
+use std::ops::Not;
 
 mod options;
 
@@ -29,7 +30,7 @@ fn main() {
         ;
 
     eprintln!("sorting...");
-    ranking.data.par_sort_by_key(|data| { data.ranking_counter });
+    ranking.data.par_sort_by_key(|data| { !data.ranking_counter });
 
     eprintln!("writing...");
     let output_file = File::open(options.output_bin).unwrap();
