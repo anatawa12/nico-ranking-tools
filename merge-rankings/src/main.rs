@@ -44,7 +44,6 @@ fn main() {
             None => break,
             Some(a) => a
         };
-        ctx.move_next();
         let cur = ctx.get_cur().unwrap();
         progress.set_message(&cur.content_id);
 
@@ -58,6 +57,7 @@ fn main() {
                  cur.length_seconds,
         ).unwrap();
 
+        ctx.move_next();
         rank_index += 1;
         progress.inc(1);
     }
