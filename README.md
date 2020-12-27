@@ -5,6 +5,10 @@ Tools for ranking of the sum time humanity has watched a video.
 
 ## Index
 - [get-nico-data](#get-nico-data)
+- [merge-nico-data](#merge-nico-data)
+- [sort-ranking](#sort-ranking)
+- [merge-rankings](#merge-rankings)
+- [集計ステップ](#集計ステップ)
 
 ## get-nico-data
 
@@ -95,3 +99,11 @@ merge-rankings <out csv> <ranking bin files...>
 [get-nico-data]: #get-nico-data
 [snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
 [SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
+
+
+## 集計ステップ
+
+1. get-nico-dataで取得
+2. merge-nico-data -aでまとめる
+3. sort-rankingで各週毎にソートする
+4. merge-rankingsでcsvにする
