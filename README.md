@@ -78,6 +78,20 @@ sort-ranking <input bin> <output bin> <ranking-type>
 
 ranking_counterが指定された`merged.bin`形式
 
+## merge-rankings
+
+`sort-ranking` で生成された複数のランキングバイナリを読み込み、csvに出力する
+
+### 使い方
+
+```
+merge-rankings <out csv> <ranking bin files...>
+```
+
+### 出力
+
+要素が順に ``rank, ranking key, video id, get at, posted at, view count, video length`` なcsv. (ヘッダ行あり)
+
 [get-nico-data]: #get-nico-data
 [snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
 [SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
