@@ -8,6 +8,7 @@ Tools for ranking of the sum time humanity has watched a video.
 - [merge-nico-data](#merge-nico-data)
 - [sort-ranking](#sort-ranking)
 - [merge-rankings](#merge-rankings)
+- [html-gen](#html-gen)
 - [集計ステップ](#集計ステップ)
 
 ## get-nico-data
@@ -100,6 +101,19 @@ merge-rankings <out csv> <ranking bin files...>
 [snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
 [SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
 
+## html-gen
+
+csvからランキングの五番状に表示するhtmlを生成する
+
+### 使い方
+
+```
+html-gen <input csv> <output dir>
+```
+
+### 出力
+
+`ranking_x.html`が生成される。
 
 ## 集計ステップ
 

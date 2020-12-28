@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人類が動画にかけた時間のランキング</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            grid-column-gap: 0.375rem;
+            grid-row-gap: 0.375rem;
+            list-style: none;
+            clear: left;
+        }
+        .grid-item {
+            display: inline-block;
+            text-align: center;
+            background-color: darkgray;
+            padding: 4px;
+        }
+        .ranking-header {
+            width: 100%;
+            background-color: darkcyan;
+        }
+        .nico-frame {
+            border:solid 1px #ccc;
+        }
+
+        .header, footer {
+            background-color: chocolate;
+            height: 2rem;
+            padding: 0.375rem;
+            text-align: center;
+        }
+        .left, .right {
+            background-color: aqua;
+        }
+        .left, .right, .center {
+            display: inline-block;
+            height: 2rem;
+            text-align: center;
+            line-height: 2rem;
+            padding: 0 0.375rem;
+        }
+        .left {
+            float: left;
+        }
+        .right {
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <a href="template-base.html" class="left">← prev (1位〜500位)</a>
+    <a href="template-base.html" class="right">(1001位〜1500位) next →</a>
+    <div class="center">501位〜1000位</div>
+</header>
+<ul class="container">
+    <li class="grid-item">
+        <div class="ranking-header">#1</div>
+        <div>
+            <div>1000年30日</div>
+            <div>4分 15万回再生</div>
+            <iframe class="nico-frame" width="312" height="176" loading="lazy" scrolling="no" src="https://ext.nicovideo.jp/thumb/sm0000"></iframe>
+        </div>
+    </li>
+</ul>
+<footer class="footer">
+    <a href="template-base.html" class="left">← prev (1位〜500位)</a>
+    <a href="template-base.html" class="right">(1001位〜1500位) →</a>
+    <div class="center">501位〜1000位</div>
+</footer>
+</body>
+</html>
