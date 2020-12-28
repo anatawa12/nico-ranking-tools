@@ -7,6 +7,7 @@ use crate::ymd_print::ymd_to_string;
 use std::time::Duration;
 use std::str::FromStr;
 use crate::numeral_print::numeral_to_string;
+use indicatif::{ProgressBar, ProgressStyle};
 
 mod options;
 mod utils;
@@ -16,14 +17,16 @@ mod numeral_print;
 fn main() {
     let options = parse_options();
 
-    let input_csv = options.input_csv;
-    let input_csv = File::open(input_csv).unwrap();
+    let input_csv = File::open(&options.input_csv).unwrap();
     let input_csv = BufReader::new(input_csv);
+    let input_csv_size = fs::metadata(&options.input_csv).unwrap().len();
 
     fs::create_dir_all(&options.output_dir).unwrap();
 
-    let per_page = 200;
+    let per_page: usize = 200;
     let mut page_number: u64 = 0;
+    let progress = ProgressBar::new(input_csv_size / 89 / per_page as u64);
+    set_style(&progress);
 
     for (versions, has_next) in input_csv.lines()
         .skip(1) // skip header line
@@ -32,6 +35,8 @@ fn main() {
         .into_iter()
         .with_has_next()
     {
+        progress.set_message(&format!("page #{}", page_number));
+        progress.tick();
         let versions: Vec<_> = versions.collect();
         let info = PageInfo {
             per_page: per_page as u64,
@@ -40,10 +45,10 @@ fn main() {
             page_count: versions.len() as u64,
         };
         process_a_chunk(versions, &options.output_dir, &info).unwrap();
+        progress.inc(1);
         page_number += 1;
     }
-
-    println!("Hello, world!");
+    progress.finish_with_message("finished");
 }
 
 fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<()>
@@ -128,6 +133,11 @@ fn write_prev_cur_next<W: Write>(output_html: &mut W, info: &PageInfo) -> std::i
     }
     writeln!(output_html, r#"    <div class="center">{}位〜{}位</div>"#, start_rank, last_rank)?;
     Ok(())
+}
+
+fn set_style(progress: &ProgressBar) {
+    progress.set_style(ProgressStyle::default_bar().template("[{elapsed_precise}] {bar:40blue} {pos:>7}/{len:7} ({percent}%) {msg}")
+        .progress_chars("##-"));
 }
 
 pub struct PageInfo {
