@@ -2,31 +2,28 @@ use std::time::Duration;
 use std::num::NonZeroU64;
 
 pub fn ymd_to_string(dur: Duration) -> String {
+    let mut result = String::new();
     if let Some(years) = NonZeroU64::new(dur.as_years()) {
-        if let Some(months) = NonZeroU64::new(dur.subyear_months()) {
-            format!("{}年{}ヶ月", years, months)
-        } else {
-            format!("{}年", years)
-        }
-    } else if let Some(months) = NonZeroU64::new(dur.subyear_months()) {
-        if let Some(days) = NonZeroU64::new(dur.submonth_days()) {
-            format!("{}ヶ月{}日", months, days)
-        } else {
-            format!("{}ヶ月", months)
-        }
-    } else if let Some(days) = NonZeroU64::new(dur.as_days()) {
-        if let Some(hours) = NonZeroU64::new(dur.subday_hours()) {
-            format!("{}日{}時間", days, hours)
-        } else {
-            format!("{}日", days)
-        }
-    } else if let Some(hours) = NonZeroU64::new(dur.as_hours()) {
-        format!("{}時間{}分", hours, dur.subhour_minutes())
-    } else if let Some(minutes) = NonZeroU64::new(dur.as_minutes()){
-        format!("{}分{}秒", minutes, dur.submin_secs())
-    } else {
-        format!("{}秒", dur.as_secs())
+        result = format!("{}{}年", result, years);
     }
+    if let Some(months) = NonZeroU64::new(dur.subyear_months()) {
+        result = format!("{}{}ヶ月", result, months);
+    }
+    if let Some(days) = NonZeroU64::new(dur.as_days()) {
+        result = format!("{}{}日", result, days);
+    }
+    if let Some(hours) = NonZeroU64::new(dur.as_hours()) {
+        result = format!("{}{}時間", result, hours)
+    }
+    if let Some(minutes) = NonZeroU64::new(dur.as_minutes()){
+        result = format!("{}分{}秒", minutes, dur.submin_secs())
+    } else if let Some(seconds) = NonZeroU64::new(dur.submin_secs()) {
+        result = format!("{}秒", seconds)
+    }
+    if result == "" {
+        result = "0秒".to_string();
+    }
+    result
 }
 
 const SECS_PER_MINUTE: u64 = 60;

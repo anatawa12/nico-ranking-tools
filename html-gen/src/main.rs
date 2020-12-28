@@ -25,6 +25,7 @@ fn main() {
 
     let per_page: usize = 200;
     let mut page_number: u64 = 0;
+    let mut last_page_count: u64 = 0;
     let progress = ProgressBar::new(input_csv_size / 89 / per_page as u64);
     set_style(&progress);
 
@@ -38,24 +39,70 @@ fn main() {
         progress.set_message(&format!("page #{}", page_number));
         progress.tick();
         let versions: Vec<_> = versions.collect();
+        last_page_count = versions.len() as u64;
         let info = PageInfo {
             per_page: per_page as u64,
             page_number,
             has_next,
-            page_count: versions.len() as u64,
+            page_count: last_page_count,
         };
-        process_a_chunk(versions, &options.output_dir, &info).unwrap();
+        let cnt = process_a_chunk(versions, &options.output_dir, &info).unwrap();
         progress.inc(1);
         page_number += 1;
+        if cnt != last_page_count {
+            last_page_count = cnt;
+            break
+        }
     }
     progress.finish_with_message("finished");
+
+    // write index file
+    process_index(&options.output_dir, page_number, per_page as u64, last_page_count).unwrap();
 }
 
-fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<()>
+fn process_index(output_dir: &String, page_count: u64, per_page: u64, last_count: u64) -> std::io::Result<()> {
+    let output_html = format!("{}/index.html", output_dir);
+    let output_html = File::create(output_html)?;
+    let mut output_html = BufWriter::new(output_html);
+
+    writeln!(output_html, r#"<!DOCTYPE html>"#)?;
+    writeln!(output_html, r#"<html lang="en">"#)?;
+    writeln!(output_html, r#"<head>"#)?;
+    writeln!(output_html, "{}", include_str!("template.head.html").replace("{info}", ""))?;
+    writeln!(output_html, r#"</head>"#)?;
+    writeln!(output_html, r#"<body>"#)?;
+    writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
+    writeln!(output_html, r#"<header class="header">"#)?;
+    writeln!(output_html, r#"    <div class="center">人類が動画にかけた時間のランキング</div>"#)?;
+    writeln!(output_html, r#"</header>"#)?;
+    writeln!(&mut output_html, r#"<ul class="container">"#)?;
+
+    for index in 0..page_count {
+        let rank_first = index * per_page + 1;
+        let rank_last = if index == page_count - 1 {
+            rank_first + last_count - 1
+        } else {
+            rank_first + per_page - 1
+        };
+
+        writeln!(&mut output_html, r#"    <li class="grid-item"><a href="ranking-{}.html">{}位~{}位</a></li>"#,
+                 index, rank_first, rank_last)?;
+    }
+
+    writeln!(&mut output_html, r#"</ul>"#)?;
+    writeln!(output_html, "{}", include_str!("template.body.foot.html"))?;
+    writeln!(output_html, r#"</body>"#)?;
+    writeln!(output_html, r#"</html>"#)?;
+
+    Ok(())
+}
+
+fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<u64>
     where Itr : IntoIterator<Item = String> {
     let output_html = format!("{}/ranking-{}.html", output_dir, info.page_number);
     let output_html = File::create(output_html)?;
     let mut output_html = BufWriter::new(output_html);
+    let mut count = 0;
 
     write_heading(&mut output_html, info)?;
     writeln!(&mut output_html, r#"<ul class="container">"#)?;
@@ -80,12 +127,13 @@ fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> 
                  video_id)?;
         writeln!(&mut output_html, r#"        </div>"#)?;
         writeln!(&mut output_html, r#"    </li>"#)?;
+        count += 1;
     }
 
     writeln!(&mut output_html, r#"</ul>"#)?;
 
     write_footing(&mut output_html, info)?;
-    Ok(())
+    Ok(count)
 }
 
 fn write_heading<W: Write>(output_html: &mut W, info: &PageInfo) -> std::io::Result<()> {
@@ -95,7 +143,7 @@ fn write_heading<W: Write>(output_html: &mut W, info: &PageInfo) -> std::io::Res
     writeln!(output_html, r#"<html lang="en">"#)?;
     writeln!(output_html, r#"<head>"#)?;
     writeln!(output_html, "{}", include_str!("template.head.html")
-        .replace("{range}", &format!("{}位〜{}位", start_rank, last_rank)))?;
+        .replace("{info}", &format!("({}位〜{}位)", start_rank, last_rank)))?;
     writeln!(output_html, r#"</head>"#)?;
     writeln!(output_html, r#"<body>"#)?;
     writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
@@ -120,8 +168,7 @@ fn write_prev_cur_next<W: Write>(output_html: &mut W, info: &PageInfo) -> std::i
 
     match info.prev_rank_range() {
         None => {
-            writeln!(output_html, r#"    <span class="left">← prev ({}位〜{}位)</span>"#,
-                     start_rank, last_rank)?;
+            writeln!(output_html, r#"    <a href="index.html" class="left">← prev (ランキングトップ)</a>"#, )?;
         }
         Some((since, last)) => {
             writeln!(output_html, r#"    <a href="ranking-{}.html" class="left">← prev ({}位〜{}位)</a>"#,
@@ -130,8 +177,7 @@ fn write_prev_cur_next<W: Write>(output_html: &mut W, info: &PageInfo) -> std::i
     }
     match info.next_rank_range() {
         None => {
-            writeln!(output_html, r#"    <span class="right">({}位〜{}位) next →</span>"#,
-                     start_rank, last_rank)?;
+            writeln!(output_html, r#"    <a href="index.html" class="right">(ランキングトップ) next →</a>"#)?;
         }
         Some((since, last)) => {
             writeln!(output_html, r#"    <a href="ranking-{}.html" class="right">({}位〜{}位) next →</a>"#,
