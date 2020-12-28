@@ -108,7 +108,8 @@ fn write_prev_cur_next<W: Write>(output_html: &mut W, info: &PageInfo) -> std::i
 
     match info.prev_rank_range() {
         None => {
-            writeln!(output_html, r#"    <span class="left">← prev</span>"#)?;
+            writeln!(output_html, r#"    <span class="left">← prev ({}位〜{}位)</span>"#,
+                     start_rank, last_rank)?;
         }
         Some((since, last)) => {
             writeln!(output_html, r#"    <a href="ranking-{}.html" class="left">← prev ({}位〜{}位)</a>"#,
@@ -117,7 +118,8 @@ fn write_prev_cur_next<W: Write>(output_html: &mut W, info: &PageInfo) -> std::i
     }
     match info.next_rank_range() {
         None => {
-            writeln!(output_html, r#"    <span class="right">next →</span>"#)?;
+            writeln!(output_html, r#"    <span class="right">({}位〜{}位) next →</span>"#,
+                     start_rank, last_rank)?;
         }
         Some((since, last)) => {
             writeln!(output_html, r#"    <a href="ranking-{}.html" class="right">({}位〜{}位) next →</a>"#,
