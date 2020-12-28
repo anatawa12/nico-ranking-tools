@@ -20,7 +20,10 @@
         }
         .ranking-header {
             width: 100%;
-            background-color: darkcyan;
+            background-color: cyan;
+        }
+        .ranking-header-link {
+            color: blue;
         }
         .nico-frame {
             border:solid 1px #ccc;
@@ -58,11 +61,11 @@
 </header>
 <ul class="container">
     <li class="grid-item">
-        <div class="ranking-header">#1</div>
+        <div class="ranking-header"><a href="https://nicovideo.jp/watch/sm0000" class="ranking-header-link">#1</a></div>
         <div>
             <div>1000年30日</div>
             <div>4分 15万回再生</div>
-            <iframe class="nico-frame" width="312" height="176" loading="lazy" scrolling="no" src="https://ext.nicovideo.jp/thumb/sm0000"></iframe>
+            <iframe class="nico-frame lazy" width="312" height="176" scrolling="no" data-src="https://ext.nicovideo.jp/thumb/sm0000"></iframe>
         </div>
     </li>
 </ul>
@@ -71,5 +74,9 @@
     <a href="template-base.html" class="right">(1001位〜1500位) →</a>
     <div class="center">501位〜1000位</div>
 </footer>
+<script>
+    window.lazyLoadOptions = {};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.3.0/dist/lazyload.min.js"></script>
 </body>
 </html>

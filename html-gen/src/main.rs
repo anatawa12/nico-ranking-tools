@@ -71,11 +71,12 @@ fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> 
         let video_length = Duration::new(u64::from_str(elements[6]).unwrap(), 0);
 
         writeln!(&mut output_html, r#"    <li class="grid-item">"#)?;
-        writeln!(&mut output_html, r#"        <div class="ranking-header">#{}</div>"#, rank)?;
+        writeln!(&mut output_html, r#"        <div class="ranking-header"><a href="https://nicovideo.jp/watch/{}" class="ranking-header-link">#{}</a></div>"#,
+                 video_id, rank)?;
         writeln!(&mut output_html, r#"        <div>"#)?;
         writeln!(&mut output_html, r#"            <div>{}</div>"#, ymd_to_string(sum_dur))?;
         writeln!(&mut output_html, r#"            <div>{} {}回再生</div>"#, ymd_to_string(video_length), numeral_to_string(view_count))?;
-        writeln!(&mut output_html, r#"            <iframe class="nico-frame" width="312" height="176" loading="lazy" scrolling="no" src="https://ext.nicovideo.jp/thumb/{}"></iframe>"#,
+        writeln!(&mut output_html, r#"            <iframe class="nico-frame lazy" width="312" height="176" scrolling="no" data-src="https://ext.nicovideo.jp/thumb/{}"></iframe>"#,
                  video_id)?;
         writeln!(&mut output_html, r#"        </div>"#)?;
         writeln!(&mut output_html, r#"    </li>"#)?;
@@ -90,9 +91,14 @@ fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> 
 fn write_heading<W: Write>(output_html: &mut W, info: &PageInfo) -> std::io::Result<()> {
     let (start_rank, last_rank) = info.page_rank_range();
 
+    writeln!(output_html, r#"<!DOCTYPE html>"#)?;
+    writeln!(output_html, r#"<html lang="en">"#)?;
+    writeln!(output_html, r#"<head>"#)?;
     writeln!(output_html, "{}", include_str!("template.head.html")
         .replace("{range}", &format!("{}位〜{}位", start_rank, last_rank)))?;
+    writeln!(output_html, r#"</head>"#)?;
     writeln!(output_html, r#"<body>"#)?;
+    writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
     writeln!(output_html, r#"<header class="header">"#)?;
     write_prev_cur_next(output_html, info)?;
     writeln!(output_html, r#"</header>"#)?;
@@ -103,6 +109,7 @@ fn write_footing<W: Write>(output_html: &mut W, info: &PageInfo) -> std::io::Res
     writeln!(output_html, r#"<footer class="footer">"#)?;
     write_prev_cur_next(output_html, info)?;
     writeln!(output_html, r#"</footer>"#)?;
+    writeln!(output_html, "{}", include_str!("template.body.foot.html"))?;
     writeln!(output_html, r#"</body>"#)?;
     writeln!(output_html, r#"</html>"#)?;
     Ok(())
