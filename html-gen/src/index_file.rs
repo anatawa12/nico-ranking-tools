@@ -21,7 +21,7 @@ pub fn index_file(
         process_index(
             &output_html,
             index_pages[0],
-            false,
+            true,
             "ranking-"
         )?
     } else {
@@ -43,7 +43,7 @@ pub fn index_file(
             process_index(
                 &output_html,
                 x,
-                true,
+                false,
                 "ranking-",
             )?
         }
@@ -52,7 +52,7 @@ pub fn index_file(
         process_index(
             &output_html,
             &index_page_infos,
-            false,
+            true,
             "index-",
         )?
     }
@@ -63,30 +63,38 @@ pub fn index_file(
 fn process_index(
     output_html: &String,
     page_infos: &[RankingPage],
-    show_range: bool,
+    is_root: bool,
     link_page_prefix: &str,
 ) -> std::io::Result<()> {
     let output_html = File::create(output_html)?;
     let mut output_html = BufWriter::new(output_html);
 
-    let info = if show_range {
-        format!("({}位~{}位)",
-                page_infos.first().unwrap().first_rank,
-                page_infos.last().unwrap().last_rank)
+    let range = if is_root {
+        None
     } else {
-        String::new()
+        Some(format!("{}位~{}位",
+                page_infos.first().unwrap().first_rank,
+                page_infos.last().unwrap().last_rank))
+    };
+
+    let title = if let Some(range) = &range {
+        format!("人類が動画にかけた時間のランキング({})", range)
+    } else {
+        "人類が動画にかけた時間のランキング".to_string()
     };
 
     writeln!(output_html, r#"<!DOCTYPE html>"#)?;
     writeln!(output_html, r#"<html lang="en">"#)?;
     writeln!(output_html, r#"<head>"#)?;
-    writeln!(output_html, "{}", include_str!("template.head.html").replace("{info}", &info))?;
+    writeln!(output_html, "{}", include_str!("template.head.html").replace("{title}", &title))?;
     writeln!(output_html, r#"</head>"#)?;
     writeln!(output_html, r#"<body>"#)?;
     writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
-    writeln!(output_html, r#"<header class="header">"#)?;
-    writeln!(output_html, r#"    <div class="center">人類が動画にかけた時間のランキング{}</div>"#, info)?;
-    writeln!(output_html, r#"</header>"#)?;
+    if let Some(range) = &range {
+        writeln!(output_html, r#"<header class="header">"#)?;
+        writeln!(output_html, r#"    <div class="center">{}</div>"#, range)?;
+        writeln!(output_html, r#"</header>"#)?;
+    }
     writeln!(&mut output_html, r#"<ul class="container">"#)?;
 
     for x in page_infos {

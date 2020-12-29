@@ -113,7 +113,7 @@ fn write_heading<W: Write>(output_html: &mut W, info: &PageInfo) -> std::io::Res
     writeln!(output_html, r#"<html lang="en">"#)?;
     writeln!(output_html, r#"<head>"#)?;
     writeln!(output_html, "{}", include_str!("template.head.html")
-        .replace("{info}", &format!("({}位〜{}位)", start_rank, last_rank)))?;
+        .replace("{title}", &format!("人類が動画にかけた時間のランキング({}位〜{}位)", start_rank, last_rank)))?;
     writeln!(output_html, r#"</head>"#)?;
     writeln!(output_html, r#"<body>"#)?;
     writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
