@@ -9,16 +9,16 @@ pub fn ymd_to_string(dur: Duration) -> String {
     if let Some(months) = NonZeroU64::new(dur.subyear_months()) {
         result = format!("{}{}ヶ月", result, months);
     }
-    if let Some(days) = NonZeroU64::new(dur.as_days()) {
+    if let Some(days) = NonZeroU64::new(dur.submonth_days()) {
         result = format!("{}{}日", result, days);
     }
-    if let Some(hours) = NonZeroU64::new(dur.as_hours()) {
+    if let Some(hours) = NonZeroU64::new(dur.subday_hours()) {
         result = format!("{}{}時間", result, hours)
     }
-    if let Some(minutes) = NonZeroU64::new(dur.as_minutes()){
-        result = format!("{}分{}秒", minutes, dur.submin_secs())
+    if let Some(minutes) = NonZeroU64::new(dur.subhour_minutes()){
+        result = format!("{}{}分{}秒", result, minutes, dur.submin_secs())
     } else if let Some(seconds) = NonZeroU64::new(dur.submin_secs()) {
-        result = format!("{}秒", seconds)
+        result = format!("{}{}秒", result, seconds)
     }
     if result == "" {
         result = "0秒".to_string();

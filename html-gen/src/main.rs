@@ -8,11 +8,13 @@ use std::time::Duration;
 use std::str::FromStr;
 use crate::numeral_print::numeral_to_string;
 use indicatif::{ProgressBar, ProgressStyle};
+use crate::index_file::RankingPage;
 
 mod options;
 mod utils;
 mod ymd_print;
 mod numeral_print;
+mod index_file;
 
 fn main() {
     let options = parse_options();
@@ -23,23 +25,24 @@ fn main() {
 
     fs::create_dir_all(&options.output_dir).unwrap();
 
+    let mut page_infos = Vec::<RankingPage>::new();
     let per_page: usize = 200;
     let mut page_number: u64 = 0;
-    let mut last_page_count: u64 = 0;
     let progress = ProgressBar::new(input_csv_size / 89 / per_page as u64);
     set_style(&progress);
 
-    for (versions, has_next) in input_csv.lines()
+    for (index, (versions, has_next)) in input_csv.lines()
         .skip(1) // skip header line
         .filter_map(|x| x.ok())
         .chunks(per_page)
         .into_iter()
         .with_has_next()
+        .enumerate()
     {
         progress.set_message(&format!("page #{}", page_number));
         progress.tick();
         let versions: Vec<_> = versions.collect();
-        last_page_count = versions.len() as u64;
+        let last_page_count = versions.len() as u64;
         let info = PageInfo {
             per_page: per_page as u64,
             page_number,
@@ -49,52 +52,19 @@ fn main() {
         let cnt = process_a_chunk(versions, &options.output_dir, &info).unwrap();
         progress.inc(1);
         page_number += 1;
+        page_infos.append(&mut vec![RankingPage{
+            index: index as u64,
+            first_rank: info.start_rank(),
+            last_rank: info.start_rank() - 1 + last_page_count,
+        }]);
         if cnt != last_page_count {
-            last_page_count = cnt;
             break
         }
     }
     progress.finish_with_message("finished");
 
     // write index file
-    process_index(&options.output_dir, page_number, per_page as u64, last_page_count).unwrap();
-}
-
-fn process_index(output_dir: &String, page_count: u64, per_page: u64, last_count: u64) -> std::io::Result<()> {
-    let output_html = format!("{}/index.html", output_dir);
-    let output_html = File::create(output_html)?;
-    let mut output_html = BufWriter::new(output_html);
-
-    writeln!(output_html, r#"<!DOCTYPE html>"#)?;
-    writeln!(output_html, r#"<html lang="en">"#)?;
-    writeln!(output_html, r#"<head>"#)?;
-    writeln!(output_html, "{}", include_str!("template.head.html").replace("{info}", ""))?;
-    writeln!(output_html, r#"</head>"#)?;
-    writeln!(output_html, r#"<body>"#)?;
-    writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
-    writeln!(output_html, r#"<header class="header">"#)?;
-    writeln!(output_html, r#"    <div class="center">人類が動画にかけた時間のランキング</div>"#)?;
-    writeln!(output_html, r#"</header>"#)?;
-    writeln!(&mut output_html, r#"<ul class="container">"#)?;
-
-    for index in 0..page_count {
-        let rank_first = index * per_page + 1;
-        let rank_last = if index == page_count - 1 {
-            rank_first + last_count - 1
-        } else {
-            rank_first + per_page - 1
-        };
-
-        writeln!(&mut output_html, r#"    <li class="grid-item"><a href="ranking-{}.html">{}位~{}位</a></li>"#,
-                 index, rank_first, rank_last)?;
-    }
-
-    writeln!(&mut output_html, r#"</ul>"#)?;
-    writeln!(output_html, "{}", include_str!("template.body.foot.html"))?;
-    writeln!(output_html, r#"</body>"#)?;
-    writeln!(output_html, r#"</html>"#)?;
-
-    Ok(())
+    index_file::index_file(&options.output_dir, &page_infos).unwrap();
 }
 
 fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<u64>
