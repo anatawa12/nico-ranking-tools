@@ -88,6 +88,9 @@ async fn main() {
         let until_n1 = until_n;
         until_n = std::cmp::min(compute_until(until, &since.timezone()), since_n + per);
         since_n = until_n1;
+        if since_n >= until_n {
+            break
+        }
     }
 }
 
