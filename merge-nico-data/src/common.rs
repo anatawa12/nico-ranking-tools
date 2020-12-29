@@ -30,7 +30,7 @@ pub(crate) fn output_to_bincode<P: AsRef<Path>>(
             length_seconds: d.length_seconds,
             view_counter: d.view_counter,
             start_time: d.start_time,
-            ranking_counter: d.ranking_counter,
+            ranking_counter: u64::max_value(),
         }).collect()
     }).unwrap();
 }
