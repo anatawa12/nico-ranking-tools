@@ -59,7 +59,7 @@ async fn do_main(ctx: &mut Context<'_>, options: Options) {
 
     let base_dir = std::env::current_dir().unwrap().join("out");
 
-    let count = ((since - compute_until(until, &since.timezone())).num_seconds() / per.num_seconds()) as u32;
+    let count = ((compute_until(until, &since.timezone()) - since).num_seconds() / per.num_seconds()) as u64;
 
     let mut progress = ProgressStatus::new(&ctx.progress);
     progress.set_count(0, count);
@@ -70,7 +70,6 @@ async fn do_main(ctx: &mut Context<'_>, options: Options) {
         let dir = base_dir
             .join(since_n.format("%Y-%m-%d").to_string());
 
-        progress.add_info(&format!("p:{}..{} per {}", since_n, until_n, per));
         std::fs::create_dir_all(&dir).unwrap();
 
         progress.inc();
@@ -88,7 +87,7 @@ async fn do_main(ctx: &mut Context<'_>, options: Options) {
         ).await;
         swap(&mut until_n, &mut since_n);
         until_n = std::cmp::min(compute_until(until, &since.timezone()), since_n + per);
-        if since_n >= until_n {
+        if until_n - since_n < Duration::minutes(1) {
             break
         }
     }
@@ -166,7 +165,7 @@ async fn do_get_for_one_period(
         let pre_version = get_snapshot_version(ctx, &dir).await;
 
         let mut loop_counter: u32 = 0;
-        let mut got = 0;
+        let mut got: u32 = 0;
         let mut full_count = 1;
         while got < full_count {
             if loop_counter % 100 == 100-1 {
@@ -179,7 +178,7 @@ async fn do_get_for_one_period(
             }
             loop_counter += 1;
 
-            progress.set_count(got, full_count);
+            progress.set_count(got as u64, full_count as u64);
             progress.set_msg_keeping_prefix(format!("waiting response..."));
 
             let request_start = Instant::now();

@@ -33,9 +33,9 @@ impl ProgressStatus {
         self.prefix = prefix.to_string();
     }
 
-    pub fn set_count(&mut self, got: u32, full_count: u32) {
-        self.progress.set_length(full_count as u64);
-        self.progress.set_position(got as u64);
+    pub fn set_count(&mut self, got: u64, full_count: u64) {
+        self.progress.set_length(full_count);
+        self.progress.set_position(got);
         self.prefix = format!("getting#{}: ", self.progress.position());
         self.set_message_to_progress(&self.prefix);
     }
