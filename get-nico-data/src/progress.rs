@@ -1,4 +1,4 @@
-use indicatif::{MultiProgress, ProgressBar};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use std::fmt::Display;
 
 pub struct ProgressStatus {
@@ -7,9 +7,11 @@ pub struct ProgressStatus {
 }
 
 impl ProgressStatus {
-    pub fn new() -> ProgressStatus {
+    pub fn new(multi: &MultiProgress) -> ProgressStatus {
+        let progress = multi.add(ProgressBar::new(1));
+        set_style(&progress);
         ProgressStatus {
-            progress: ProgressBar::new(1),
+            progress,
             prefix: String::new(),
         }
     }
@@ -50,4 +52,9 @@ impl ProgressStatus {
         self.progress.set_message(msg);
         self.progress.tick();
     }
+}
+
+fn set_style(progress: &ProgressBar) {
+    progress.set_style(ProgressStyle::default_bar().template("[{elapsed_precise}] {bar:40blue} {pos:>7}/{len:7} {msg}")
+        .progress_chars("##-"));
 }

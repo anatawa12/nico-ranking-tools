@@ -9,37 +9,60 @@ use reqwest::{StatusCode, IntoUrl, RequestBuilder, Client, Error};
 use std::time::Instant;
 use serde_json::{Value as JValue, Map};
 use std::io::{stdout, Write, BufWriter};
-use indicatif::ProgressBar;
+use indicatif::{ProgressBar, MultiProgress};
 use std::fmt::Display;
 use crate::progress::ProgressStatus;
-use crate::options::parse_options;
+use crate::options::{parse_options, Options};
 use crate::nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion};
 use bytes::Bytes;
 use tokio::macros::support::Future;
 use std::fs::File;
+use std::mem::swap;
 
 const DEFAULT_USER_AGENT: &str = concat!("view-counter-times-video-length-ranking-getting-daemon/", env!("CARGO_PKG_VERSION"));
 const DATE_FORMAT: &str = "%Y/%m/%d";
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let options = parse_options();
-    let since = options.since;
-    let until = options.until;
-    let per = options.duration;
-    let filter = options.filter;
 
     let client = reqwest::Client::builder()
         .user_agent(DEFAULT_USER_AGENT)
         .build().unwrap();
 
-    let mut ctx = Context::new(&client);
+    let progress = MultiProgress::new();
+    let mut ctx = Context::new(&client, &progress);
+
+    crossbeam::thread::scope(|s| {
+        s.spawn(|s| {
+            tokio::runtime::Builder::new()
+                .threaded_scheduler()
+                .enable_all()
+                .build()
+                .unwrap()
+                .block_on(async {
+                    do_main(&mut ctx, options).await;
+                    println!("finished main thread");
+                })
+        });
+        s.spawn(|s| {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            progress.join().unwrap();
+            println!("finished!");
+        });
+    }).unwrap()
+}
+
+async fn do_main(ctx: &mut Context<'_>, options: Options) {
+    let since = options.since;
+    let until = options.until;
+    let per = options.duration;
+    let filter = options.filter;
 
     let base_dir = std::env::current_dir().unwrap().join("out");
 
     let count = ((since - compute_until(until, &since.timezone())).num_seconds() / per.num_seconds()) as u32;
 
-    let mut progress = ProgressStatus::new();
+    let mut progress = ProgressStatus::new(&ctx.progress);
     progress.set_count(0, count);
 
     let mut since_n = since;
@@ -48,6 +71,7 @@ async fn main() {
         let dir = base_dir
             .join(since_n.format("%Y-%m-%d").to_string());
 
+        progress.add_info(&format!("p:{}..{} per {}", since_n, until_n, per));
         std::fs::create_dir_all(&dir).unwrap();
 
         progress.inc();
@@ -57,15 +81,14 @@ async fn main() {
         ));
 
         do_get_for_one_period(
-            &mut ctx,
+            ctx,
             since_n,
             until_n,
             dir.clone(),
             filter.clone(),
         ).await;
-        let until_n1 = until_n;
+        swap(&mut until_n, &mut since_n);
         until_n = std::cmp::min(compute_until(until, &since.timezone()), since_n + per);
-        since_n = until_n1;
         if since_n >= until_n {
             break
         }
@@ -83,15 +106,17 @@ struct Context<'a> {
     client: &'a reqwest::Client,
     max_req_time: Duration,
     last_req_time: Duration,
+    progress: &'a MultiProgress,
 }
 
 
 impl<'a> Context<'a> {
-    pub(crate) fn new(client: &reqwest::Client) -> Context {
+    pub(crate) fn new(client: &'a reqwest::Client, progress: &'a MultiProgress) -> Context<'a> {
         Context {
             client,
             max_req_time: Duration::zero(),
             last_req_time: Duration::zero(),
+            progress,
         }
     }
 
@@ -118,7 +143,7 @@ async fn do_get_for_one_period(
     filter: Option<FilterJson>,
 )
 {
-    let mut progress = ProgressStatus::new();
+    let mut progress = ProgressStatus::new(&ctx.progress);
 
     let filter = {
         let range = FilterJson::Range(RangeFilter::start_time(since, until));
@@ -212,7 +237,7 @@ async fn do_get_for_one_period(
 async fn get_snapshot_version(ctx: &mut Context<'_>, dir: &std::path::PathBuf) -> SnapshotVersion
 {
     //*
-    let mut progress = ProgressStatus::new();
+    let mut progress = ProgressStatus::new(&ctx.progress);
     let (version, _) = http_request(
         ctx,
         &mut progress,
