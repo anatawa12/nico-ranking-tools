@@ -1,7 +1,7 @@
 use clap::*;
 use chrono::{FixedOffset, TimeZone, Date, NaiveDate, Duration, DateTime};
 use std::process::exit;
-use crate::nico_snapshot_api::FilterJson;
+use nico_snapshot_api::FilterJson;
 use std::io::BufReader;
 use std::fs::File;
 

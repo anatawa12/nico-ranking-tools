@@ -6,8 +6,10 @@
       <sourceFolder url="file://$MODULE_DIR$/merge-nico-data/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/html-gen/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/merge-rankings/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nico-ranking/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sort-ranking/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/structs/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nico-snapshot-api/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/get-nico-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/merge-nico-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/structs/target" />
