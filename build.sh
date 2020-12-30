@@ -12,6 +12,7 @@ fi
 
 PROJECTS="get-nico-data html-gen merge-nico-data merge-rankings sort-ranking nico-ranking"
 
+rm -rf dist
 mkdir -p dist
 
 for rank in $PROJECTS; do
