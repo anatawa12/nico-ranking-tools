@@ -4,7 +4,7 @@ use serde::export::Formatter;
 use serde::de::Unexpected;
 use serde::export::fmt::Display;
 use std::str::FromStr;
-use crate::nico_snapshot_api::response::ResponseJson;
+use super::response::ResponseJson;
 
 #[derive(Serialize, Eq, PartialEq, Debug, Clone)]
 pub struct QueryParams {

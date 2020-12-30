@@ -1,6 +1,5 @@
 mod progress;
 mod options;
-mod nico_snapshot_api;
 
 use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone};
 use std::process::exit;
@@ -13,7 +12,7 @@ use indicatif::{ProgressBar, MultiProgress};
 use std::fmt::Display;
 use crate::progress::ProgressStatus;
 use crate::options::{parse_options, Options};
-use crate::nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion};
+use nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion};
 use bytes::Bytes;
 use tokio::macros::support::Future;
 use std::fs::File;

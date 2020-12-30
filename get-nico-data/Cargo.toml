@@ -22,3 +22,4 @@ crossbeam = { version = "0.8" }
 indicatif = { version = "0.15" }
 clap = { version = "2.33" }
 casey = { version = "0.3.3" }
+nico-snapshot-api = { path = "../nico-snapshot-api", version = "0.1.0" }
