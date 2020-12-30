@@ -8,6 +8,7 @@ pub fn numeral_to_string(num: u64) -> String {
         // 1億未満
         format!("{}万", (num / 1000) as f64 / 10.0)
     } else {
-        unimplemented!("億")
+        // 1億以上(
+        format!("{}億", (num / 1000_0000) as f64 / 10.0)
     }
 }
