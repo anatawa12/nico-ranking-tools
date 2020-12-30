@@ -71,7 +71,6 @@ async fn do_main(ctx: &mut Context<'_>, options: Options) {
         let dir = base_dir
             .join(since_n.format("%Y-%m-%d").to_string());
 
-        progress.add_info(&format!("p:{}..{} per {}", since_n, until_n, per));
         std::fs::create_dir_all(&dir).unwrap();
 
         progress.inc();

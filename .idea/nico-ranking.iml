@@ -14,6 +14,8 @@
       <excludeFolder url="file://$MODULE_DIR$/sort-ranking/target" />
       <excludeFolder url="file://$MODULE_DIR$/merge-rankings/target" />
       <excludeFolder url="file://$MODULE_DIR$/html-gen/target" />
+      <excludeFolder url="file://$MODULE_DIR$/nico-ranking/target" />
+      <excludeFolder url="file://$MODULE_DIR$/nico-snapshot-api/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
