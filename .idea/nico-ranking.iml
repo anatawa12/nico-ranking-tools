@@ -8,12 +8,14 @@
       <sourceFolder url="file://$MODULE_DIR$/merge-rankings/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sort-ranking/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/structs/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nico-snapshot-api/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/get-nico-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/merge-nico-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/structs/target" />
       <excludeFolder url="file://$MODULE_DIR$/sort-ranking/target" />
       <excludeFolder url="file://$MODULE_DIR$/merge-rankings/target" />
       <excludeFolder url="file://$MODULE_DIR$/html-gen/target" />
+      <excludeFolder url="file://$MODULE_DIR$/nico-snapshot-api/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
