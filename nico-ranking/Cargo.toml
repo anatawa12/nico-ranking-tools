@@ -1,0 +1,17 @@
+[package]
+name = "nico-ranking"
+version = "0.1.0"
+authors = ["anatawa12 <anatawa12@icloud.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde_json = { version = "1.0" }
+clap = { version = "2.33" }
+chrono = { version = "0.4" }
+parse_duration = { version = "2.1.0" }
+tempfile = { version = "3.1" }
+nico-snapshot-api = { path = "../nico-snapshot-api", version = "0.1.0" }
+crossbeam = { version = "0.8" }
+ansi_term = { version = "0.12" }
