@@ -27,19 +27,12 @@ pub struct RankingMeta {
 pub struct RankingVideoData {
     #[serde(rename = "contentId")]
     pub content_id: String,
-    #[serde(rename = "lengthSeconds")]
-    #[serde(skip_serializing_if = "is_max_value_u32")]
     #[serde(default = "u32::max_value")]
     pub length_seconds: u32,
-    #[serde(rename = "viewCounter")]
-    #[serde(skip_serializing_if = "is_max_value_u32")]
     #[serde(default = "u32::max_value")]
     pub view_counter: u32,
     #[serde(rename = "startTime")]
     pub start_time: DateTime<FixedOffset>,
-    #[serde(skip_serializing_if = "is_max_value_u64")]
-    #[serde(default = "u64::max_value")]
-    pub ranking_counter: u64,
 }
 
 fn is_max_value_u32(v: &u32) -> bool {
