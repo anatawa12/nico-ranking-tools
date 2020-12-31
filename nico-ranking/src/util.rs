@@ -13,7 +13,13 @@ pub fn duration_to_string(dur: Duration) -> String {
 }
 
 pub fn get_exec_path(name: &str) -> PathBuf {
-    let path = current_exe().unwrap().parent().unwrap().join(name);
+
+    let path = if cfg!(not(windows)) {
+        current_exe().unwrap().parent().unwrap().join(name)
+    } else {
+        current_exe().unwrap().parent().unwrap().join(format!("{}.exe", name))
+    };
+
     metadata(&path).unwrap();
     path
 }
