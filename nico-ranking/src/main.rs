@@ -93,11 +93,11 @@ fn run_get_nico_data(options: &Options, work_dir: &Path) {
     if let Some(since) = options.since {
         cmd.args(&["--since", &since.format(DATE_FORMAT).to_string()]);
     }
-    if let Some(since) = options.since {
-        cmd.args(&["--since", &since.format(DATE_FORMAT).to_string()]);
+    if let Some(until) = options.until {
+        cmd.args(&["--until", &until.format(DATE_FORMAT).to_string()]);
     }
     if let Some(duration) = options.duration {
-        cmd.args(&["--since", &duration_to_string(duration)]);
+        cmd.args(&["--duration", &duration_to_string(duration)]);
     }
     let temp_file_keeper = if let Some(json) = &options.filter {
         let mut named = NamedTempFile::new().unwrap();
