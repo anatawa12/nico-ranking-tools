@@ -5,6 +5,7 @@ use serde::de::Unexpected;
 use serde::export::fmt::Display;
 use std::str::FromStr;
 use super::response::ResponseJson;
+use reqwest::StatusCode;
 
 #[derive(Serialize, Eq, PartialEq, Debug, Clone)]
 pub struct QueryParams {
@@ -97,6 +98,7 @@ impl QueryParams {
             .query(&self)
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
