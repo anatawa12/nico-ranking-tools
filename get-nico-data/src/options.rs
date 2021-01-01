@@ -44,7 +44,7 @@ pub fn parse_options() -> Options {
 
     let since = matches.value_of("since")
         .map(|date| jst_timezone
-            .from_local_date(&NaiveDate::parse_from_str(date, ZERO_O_CLOCK_POSTFIX)
+            .from_local_date(&NaiveDate::parse_from_str(date, DATE_FORMAT_WITH_TIME)
                 .unwrap_or_else(|err| exiting_errf!("since: {}", err)))
             .unwrap()
             .and_hms(0, 0, 0))
@@ -52,7 +52,7 @@ pub fn parse_options() -> Options {
 
     let until = matches.value_of("until")
         .map(|date| jst_timezone
-            .from_local_date(&NaiveDate::parse_from_str(date, ZERO_O_CLOCK_POSTFIX)
+            .from_local_date(&NaiveDate::parse_from_str(date, DATE_FORMAT_WITH_TIME)
                 .unwrap_or_else(|err| exiting_errf!("until: {}", err)))
             .unwrap()
             .and_hms(0, 0, 0));
