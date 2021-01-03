@@ -1,22 +1,14 @@
-use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone};
-use std::process::exit;
-use url::{Url};
-use reqwest::{StatusCode, IntoUrl, RequestBuilder, Client, Error};
+use chrono::{DateTime, Duration, FixedOffset, Utc};
+use reqwest::{StatusCode, Client};
 use std::time::Instant;
-use serde_json::{Value as JValue, Map};
-use std::io::{stdout, Write, BufWriter};
-use indicatif::{ProgressBar, MultiProgress};
-use std::fmt::Display;
+use indicatif::{MultiProgress};
 use crate::progress::ProgressStatus;
-use crate::options::{parse_options, Options};
+use crate::options::{Options};
 use nico_snapshot_api::*;
-use bytes::Bytes;
 use tokio::macros::support::Future;
 use std::borrow::ToOwned;
 use std::mem::swap;
-use std::sync::mpsc::{Sender, Receiver};
-use std::sync::mpsc;
-use structs::NewVideoInfo;
+use std::sync::mpsc::{Sender};
 use crate::Packet;
 
 const DATE_FORMAT: &str = "%Y/%m/%d";
@@ -178,7 +170,7 @@ async fn do_get_for_one_period(
             ctx.sender.send(Packet {
                 last_modified: pre_version.last_modified,
                 videos: vec
-            });
+            }).unwrap();
             return
         }
     }

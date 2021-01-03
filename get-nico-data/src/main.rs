@@ -3,29 +3,17 @@ mod options;
 mod get_data_from_server;
 mod output;
 
-use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone};
-use std::process::exit;
-use url::{Url};
-use reqwest::{StatusCode, IntoUrl, RequestBuilder, Client, Error};
-use std::time::Instant;
-use serde_json::{Value as JValue, Map};
-use std::io::{stdout, Write, BufWriter};
-use indicatif::{ProgressBar, MultiProgress};
-use std::fmt::Display;
-use crate::progress::ProgressStatus;
-use crate::options::{parse_options, Options};
-use nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion, FieldName, VideoInfo};
-use bytes::Bytes;
-use tokio::macros::support::Future;
-use std::fs::{File, create_dir_all};
-use std::mem::swap;
-use std::sync::mpsc::{Sender, Receiver};
+use chrono::{DateTime, FixedOffset};
+use std::io::{stdout};
+use indicatif::{MultiProgress};
+use crate::options::{parse_options};
+use nico_snapshot_api::VideoInfo;
 use std::sync::mpsc;
 use crate::get_data_from_server::{get_data, Context};
 use std::path::Path;
+use std::fs::{create_dir_all, File};
 
 const DEFAULT_USER_AGENT: &str = concat!("view-counter-times-video-length-ranking-getting-daemon/", env!("CARGO_PKG_VERSION"));
-const DATE_FORMAT: &str = "%Y/%m/%d";
 
 struct Packet {
     last_modified: DateTime<FixedOffset>,
@@ -40,10 +28,11 @@ fn main() {
         .build().unwrap();
 
     let progress = MultiProgress::new();
+    let out_file = options.out.clone();
 
     crossbeam::thread::scope(|s| {
         let (sender, receiver) = mpsc::channel::<Packet>();
-        s.spawn(|s| {
+        s.spawn(|_| {
             tokio::runtime::Builder::new()
                 .threaded_scheduler()
                 .enable_all()
@@ -52,12 +41,11 @@ fn main() {
                 .block_on(async {
                     let mut ctx = Context::new(&client, &progress, sender);
                     get_data(&mut ctx, options).await;
-                    ctx.sender.clone();
                     eprintln!("finished main thread");
                 })
         });
-        s.spawn(|s| {
-            match &options.out {
+        s.spawn(|_| {
+            match &out_file {
                 None => {
                     output::run(receiver, stdout())
                 }
@@ -67,7 +55,7 @@ fn main() {
                 }
             }
         });
-        s.spawn(|s| {
+        s.spawn(|_| {
             std::thread::sleep(std::time::Duration::from_secs(1));
             progress.join().unwrap();
             eprintln!("finished!");

@@ -1,9 +1,6 @@
 use clap::*;
-use chrono::{FixedOffset, TimeZone, Date, NaiveDate, Duration, DateTime};
+use chrono::{FixedOffset, TimeZone, NaiveDate, Duration, DateTime};
 use std::process::exit;
-use nico_snapshot_api::FilterJson;
-use std::io::BufReader;
-use std::fs::File;
 
 macro_rules! exiting_errf {
     ($($arg:tt)*) => ({
@@ -13,7 +10,6 @@ macro_rules! exiting_errf {
 }
 
 const DATE_FORMAT_WITH_TIME: &str = "%Y/%m/%d";
-const ZERO_O_CLOCK_POSTFIX: &str = " 00:00:00";
 
 pub fn parse_options() -> Options {
     let jst_timezone = FixedOffset::east(9 * 3600);
