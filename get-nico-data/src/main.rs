@@ -17,11 +17,12 @@ use crate::options::{parse_options, Options};
 use nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion, FieldName, VideoInfo};
 use bytes::Bytes;
 use tokio::macros::support::Future;
-use std::fs::File;
+use std::fs::{File, create_dir_all};
 use std::mem::swap;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 use crate::get_data_from_server::{get_data, Context};
+use std::path::Path;
 
 const DEFAULT_USER_AGENT: &str = concat!("view-counter-times-video-length-ranking-getting-daemon/", env!("CARGO_PKG_VERSION"));
 const DATE_FORMAT: &str = "%Y/%m/%d";
@@ -56,7 +57,15 @@ fn main() {
                 })
         });
         s.spawn(|s| {
-            output::run(receiver, stdout())
+            match &options.out {
+                None => {
+                    output::run(receiver, stdout())
+                }
+                Some(name) => {
+                    create_dir_all(Path::new(&name).parent().unwrap()).unwrap();
+                    output::run(receiver, File::open(name).unwrap())
+                }
+            }
         });
         s.spawn(|s| {
             std::thread::sleep(std::time::Duration::from_secs(1));

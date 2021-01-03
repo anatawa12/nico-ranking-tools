@@ -33,6 +33,11 @@ pub fn parse_options() -> Options {
             .takes_value(true)
             .short("-d")
             .long("--duration"))
+        .arg(Arg::with_name("out-to")
+            .help("file to write to. defaults stdout")
+            .takes_value(true)
+            .short("-o")
+            .long("--out"))
         ;
     let matches = app.get_matches();
 
@@ -56,10 +61,13 @@ pub fn parse_options() -> Options {
             .unwrap_or_else(|err| exiting_errf!("duration: {}", err))).unwrap())
         .unwrap_or_else(|| Duration::weeks(1));
 
+    let out = matches.value_of("out-to").map(|x| x.to_owned());
+
     Options {
         since,
         until,
         duration,
+        out,
     }
 }
 
@@ -67,4 +75,5 @@ pub struct Options {
     pub since: DateTime<FixedOffset>,
     pub until: Option<DateTime<FixedOffset>>,
     pub duration: Duration,
+    pub out: Option<String>,
 }
