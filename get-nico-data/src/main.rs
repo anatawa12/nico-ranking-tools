@@ -12,7 +12,7 @@ use indicatif::{ProgressBar, MultiProgress};
 use std::fmt::Display;
 use crate::progress::ProgressStatus;
 use crate::options::{parse_options, Options};
-use nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion};
+use nico_snapshot_api::{FilterJson, EqualFilter, RangeFilter, QueryParams, SortingWithOrder, RankingSorting, ResponseJson, snapshot_version, SnapshotVersion, FieldName};
 use bytes::Bytes;
 use tokio::macros::support::Future;
 use std::fs::File;
@@ -156,7 +156,7 @@ async fn do_get_for_one_period(
     };
 
     let mut params = QueryParams::new("", RankingSorting::StartTime.increasing());
-    params.with_fields(&["contentId", "lengthSeconds", "startTime", "viewCounter"]);
+    params.with_fields(&[FieldName::ContentId, FieldName::LengthSeconds, FieldName::StartTime, FieldName::ViewCounter]);
     params.set_filter(filter);
     params.set_limit(100);
 

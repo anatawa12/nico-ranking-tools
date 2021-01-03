@@ -16,8 +16,8 @@ pub struct QueryParams {
     targets: Vec<String>,
     #[serde(skip_serializing_if="Vec::is_empty")]
     #[serde(default="Vec::new")]
-    #[serde(with="serializers::comma_string_vec")]
-    fields: Vec<String>,
+    #[serde(with="serializers::comma_field_name_vec")]
+    fields: Vec<FieldName>,
     #[serde(with="string_json")]
     #[serde(rename="jsonFilter")]
     #[serde(skip_serializing_if="Option::is_none")]
@@ -59,8 +59,8 @@ impl QueryParams {
         self.targets.append(&mut args.iter().map(|x| (x as &str).to_owned()).collect());
     }
 
-    pub fn with_fields(&mut self, args: &[&str]) {
-        self.fields.append(&mut args.iter().map(|x| (x as &str).to_owned()).collect());
+    pub fn with_fields(&mut self, args: &[FieldName]) {
+        self.fields.append(&mut args.to_vec());
     }
 
     pub fn set_filter(&mut self, filter: FilterJson) {
@@ -273,6 +273,25 @@ impl RankingSorting {
     pub fn increasing(self) -> SortingWithOrder {
         SortingWithOrder::Decreasing(self)
     }
+}
+
+string_enum! {
+    FieldName, "field name", FieldNameFromStrError:
+    ContentId("contentId"),
+    Title("title"),
+    Description("description"),
+    ViewCounter("viewCounter"),
+    MylistCounter("mylistCounter"),
+    LengthSeconds("lengthSeconds"),
+    ThumbnailUrl("thumbnailUrl"),
+    StartTime("startTime"),
+    LastResBody("lastResBody"),
+    CommentCounter("commentCounter"),
+    LastCommentTime("lastCommentTime"),
+    CategoryTags("categoryTags"),
+    Tags("tags"),
+    Genre("genre"),
+    GenreKeyword("genre.keyword"),
 }
 
 mod string_json {

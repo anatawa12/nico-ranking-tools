@@ -6,6 +6,7 @@ use itertools::Itertools;
 use std::str::FromStr;
 use std::time::Duration;
 use reqwest::StatusCode;
+use crate::FieldName;
 
 macro_rules! de_or_serialize_module {
     ( $( $acc : vis mod $name: ident for $type: ty = $expr: expr )* ) => {
@@ -72,6 +73,7 @@ macro_rules! de_or_serialize_struct {
 
 de_or_serialize_module! {
     pub(crate) mod comma_string_vec for Vec<String> = SeparatedStrings::new(",")
+    pub(crate) mod comma_field_name_vec for Vec<FieldName> = SeparatedStrings::new(",")
     pub(crate) mod space_string_vec_opt for Option<Vec<String>> = ForOption::new(SeparatedStrings::new(" "))
     pub(crate) mod duration_opt_seconds for Option<Duration> = ForOption::new(DurtionSeconds::new())
     pub(crate) mod status_code_serde for StatusCode = StatusCodeSerde::new()
