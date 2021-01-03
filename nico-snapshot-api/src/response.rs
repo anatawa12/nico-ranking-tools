@@ -46,6 +46,4 @@ pub struct VideoInfo {
     #[serde(with="serializers::space_string_vec_opt")]
     pub tags: Option<Vec<String>>,
     pub genre: Option<String>,
-    #[serde(rename="genre.keyword")]
-    pub genre_keyword: Option<String>,
 }

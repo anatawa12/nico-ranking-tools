@@ -202,7 +202,7 @@ macro_rules! string_enum {
             ];
 
             #[allow(dead_code)]
-            fn all_values() -> &'static [$type_name] {
+            pub fn all_values() -> &'static [$type_name] {
                 $type_name::ALL_VALUES
             }
         }
@@ -302,7 +302,6 @@ string_enum! {
     CategoryTags("categoryTags"),
     Tags("tags"),
     Genre("genre"),
-    GenreKeyword("genre.keyword"),
 }
 
 mod string_json {

@@ -103,7 +103,7 @@ async fn do_get_for_one_period(
 
 
     let mut params = QueryParams::new("", RankingSorting::StartTime.increasing());
-    params.with_fields(&[FieldName::ContentId, FieldName::LengthSeconds, FieldName::StartTime, FieldName::ViewCounter]);
+    params.with_fields(FieldName::all_values());
     params.set_filter(filter);
     params.set_limit(100);
 
