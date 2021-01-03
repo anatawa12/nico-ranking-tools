@@ -194,6 +194,17 @@ macro_rules! string_enum {
                     _ => None
                 }
             }
+
+            const ALL_VALUES: &'static [$type_name] = &[
+                $(
+                    $type_name::$name,
+                )*
+            ];
+
+            #[allow(dead_code)]
+            fn all_values() -> &'static [$type_name] {
+                $type_name::ALL_VALUES
+            }
         }
 
         impl FromStr for $type_name {
