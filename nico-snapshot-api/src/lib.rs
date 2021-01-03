@@ -1,6 +1,7 @@
 mod filter_json;
 mod query_params;
 mod response;
+mod serializers;
 
 pub use filter_json::*;
 pub use query_params::*;

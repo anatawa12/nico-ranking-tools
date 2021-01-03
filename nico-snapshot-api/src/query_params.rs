@@ -5,6 +5,7 @@ use serde::de::Unexpected;
 use serde::export::fmt::Display;
 use std::str::FromStr;
 use super::response::ResponseJson;
+use super::serializers;
 use reqwest::StatusCode;
 
 #[derive(Serialize, Eq, PartialEq, Debug, Clone)]
@@ -12,11 +13,11 @@ pub struct QueryParams {
     q: String,
     #[serde(skip_serializing_if="Vec::is_empty")]
     #[serde(default="Vec::new")]
-    #[serde(with="comma_string_vec")]
+    #[serde(with="serializers::comma_string_vec")]
     targets: Vec<String>,
     #[serde(skip_serializing_if="Vec::is_empty")]
     #[serde(default="Vec::new")]
-    #[serde(with="comma_string_vec")]
+    #[serde(with="serializers::comma_string_vec")]
     fields: Vec<String>,
     #[serde(with="string_json")]
     #[serde(rename="jsonFilter")]
@@ -269,23 +270,6 @@ impl <'de> Deserialize<'de> for RankingSorting {
             }
         }
         deserializer.deserialize_str(VisitorImpl)
-    }
-}
-
-mod comma_string_vec {
-    use serde::{Serializer, Deserializer, Deserialize};
-
-    pub(super) fn serialize<S>(vec: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
-        let str = vec.join(",");
-        serializer.serialize_str(&str)
-    }
-
-    #[allow(dead_code)]
-    pub(super) fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error> where
-        D: Deserializer<'de> {
-        let str = <String as Deserialize>::deserialize(deserializer)?;
-        Ok(str.split("").map(|str| str.to_string()).collect())
     }
 }
 
