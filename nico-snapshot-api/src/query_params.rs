@@ -6,7 +6,6 @@ use serde::export::fmt::Display;
 use std::str::FromStr;
 use super::response::ResponseJson;
 use super::serializers;
-use reqwest::StatusCode;
 
 #[derive(Serialize, Eq, PartialEq, Debug, Clone)]
 pub struct QueryParams {
@@ -135,7 +134,6 @@ impl <'de> Deserialize<'de> for SortingWithOrder {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where
         D: Deserializer<'de> {
         use serde::de::Visitor;
-        use serde::de::Expected;
         struct VisitorImpl;
         impl <'de> Visitor<'de> for VisitorImpl {
             type Value = SortingWithOrder;
@@ -278,7 +276,6 @@ mod string_json {
     use super::FilterJson;
     use serde::ser::Error as SerError;
     use serde::de::Error as DeError;
-    use serde_json::Error;
 
     pub(super) fn serialize<S>(json: &Option<FilterJson>, serializer: S) -> Result<S::Ok, S::Error>
         where S: Serializer {
