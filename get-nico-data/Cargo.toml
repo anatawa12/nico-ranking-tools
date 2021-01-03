@@ -15,6 +15,7 @@ parse_duration = { version = "2.1.0" }
 crossterm = { version = "0.18" }
 url = { version = "2.2" }
 serde = { version = "1.0", features = ["derive"] }
+bincode = { version = "1.0" }
 serde_json = { version = "1.0" }
 bytes = { version = "0.5" }
 lazy_static = { version = "1.4" }
@@ -23,3 +24,4 @@ indicatif = { version = "0.15" }
 clap = { version = "2.33" }
 casey = { version = "0.3.3" }
 nico-snapshot-api = { path = "../nico-snapshot-api", version = "0.1.0" }
+structs = { path = "../structs", version="0.1.0" }

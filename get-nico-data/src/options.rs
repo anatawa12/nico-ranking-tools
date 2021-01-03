@@ -33,12 +33,6 @@ pub fn parse_options() -> Options {
             .takes_value(true)
             .short("-d")
             .long("--duration"))
-        .arg(Arg::with_name("filter")
-            // https://bit.ly/3aOXNn6: https://site.nicovideo.jp/search-api-docs/snapshot#＊4-jsonフィルタ指定仕様
-            .help("path to filter json. see https://bit.ly/3aOXNn6")
-            .takes_value(true)
-            .short("-f")
-            .long("--filter"))
         ;
     let matches = app.get_matches();
 
@@ -62,19 +56,10 @@ pub fn parse_options() -> Options {
             .unwrap_or_else(|err| exiting_errf!("duration: {}", err))).unwrap())
         .unwrap_or_else(|| Duration::weeks(1));
 
-    let filter = matches.value_of("filter")
-        .map(|path| {
-            let file = File::open(path).unwrap_or_else(|err| exiting_errf!("filter: {}", err));
-            let file = BufReader::new(file);
-            serde_json::from_reader::<_, FilterJson>(file)
-                .unwrap_or_else(|err| exiting_errf!("filter: {}", err))
-        });
-
     Options {
         since,
         until,
         duration,
-        filter,
     }
 }
 
@@ -82,5 +67,4 @@ pub struct Options {
     pub since: DateTime<FixedOffset>,
     pub until: Option<DateTime<FixedOffset>>,
     pub duration: Duration,
-    pub filter: Option<FilterJson>,
 }

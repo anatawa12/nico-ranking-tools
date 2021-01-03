@@ -63,3 +63,23 @@ pub struct RankingVideoDataBin {
     pub start_time: DateTime<FixedOffset>,
     pub ranking_counter: u64,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct NewVideoInfo {
+    pub last_modified: DateTime<FixedOffset>,
+    pub content_id: String,
+    pub title: String,
+    pub description	: String,
+    pub view_counter: u32,
+    pub mylist_counter: u32,
+    pub length_seconds: std::time::Duration,
+    pub thumbnail_url: String,
+    pub start_time: DateTime<FixedOffset>,
+    pub last_res_body: String,
+    pub comment_counter: u32,
+    pub last_comment_time: DateTime<FixedOffset>,
+    pub category_tags: String,
+    pub tags: Vec<String>,
+    pub genre: String,
+    pub genre_keyword: String,
+}

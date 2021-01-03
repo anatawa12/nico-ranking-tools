@@ -42,6 +42,7 @@ impl ProgressStatus {
 
     pub fn set_msg_keeping_prefix<S: Display>(&self, message: S) {
         self.set_message_to_progress(&format!("{}{}", self.prefix, message));
+        self.progress.tick()
     }
 
     pub fn set_message(&mut self, message: &str) {
