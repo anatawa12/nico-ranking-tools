@@ -51,7 +51,7 @@ fn main() {
                 }
                 Some(name) => {
                     create_dir_all(Path::new(&name).parent().unwrap()).unwrap();
-                    output::run(receiver, File::open(name).unwrap())
+                    output::run(receiver, File::create(name).unwrap())
                 }
             }
         });

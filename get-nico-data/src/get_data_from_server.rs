@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, FixedOffset, Utc};
+use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone};
 use reqwest::{StatusCode, Client};
 use std::time::Instant;
 use indicatif::{MultiProgress};
@@ -117,6 +117,7 @@ async fn do_get_for_one_period(
                 }
             }
             loop_counter += 1;
+            ctx.sender.send(Packet{ last_modified: FixedOffset::east(0).timestamp(1431648000, 0), videos: Vec::new() }).unwrap();
 
             progress.set_count(got as u64, full_count as u64);
             progress.set_msg_keeping_prefix(format!("waiting response..."));
