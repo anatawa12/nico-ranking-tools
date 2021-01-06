@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone};
+use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone, Local};
 use reqwest::{StatusCode, Client};
 use std::time::Instant;
 use indicatif::{MultiProgress};
@@ -143,8 +143,6 @@ async fn do_get_for_one_period(
 
             ctx.last_req_time = Duration::from_std(duration).unwrap();
 
-            progress.set_msg_keeping_prefix(format!("writing to file..."));
-
             // set variables
             let len = json.data.len() as u32;
             full_count = json.meta.total_count as u32;
@@ -153,7 +151,9 @@ async fn do_get_for_one_period(
                 vec.push(x)
             }
 
-            progress.set_msg_keeping_prefix(format!("waiting for server load reduction..."));
+            let until = ctx.get_wait_until(request_start);
+            progress.set_msg_keeping_prefix(format!("waiting for server load reduction until {}",
+                                                    Local::now() + Duration::from_std(until - Instant::now()).unwrap()));
             tokio::time::delay_until(ctx.get_wait_until(request_start).into())
                 .await;
             let finished = len == 0;
