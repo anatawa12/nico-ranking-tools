@@ -240,7 +240,7 @@ async fn http_request<'a, Fut: Future<Output = reqwest::Result<R>> + 'a, R>(
                         }
                     }
                 } else {
-                    Err(err).unwrap()
+                    progress.add_err(&format!("unknown error: {}", err));
                 }
             }
         }
