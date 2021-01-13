@@ -10,3 +10,4 @@ license = "MIT"
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
+bincode = { version = "1.0", optional = true }

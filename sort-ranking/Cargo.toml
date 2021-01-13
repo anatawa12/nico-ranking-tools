@@ -9,7 +9,7 @@ license = "MIT"
 
 [dependencies]
 rayon = { version = "1.5" }
-serde_json = { version = "1" }
+serde = { version = "1" }
 bincode = { version = "1" }
 indicatif = { version = "0.15" }
-structs = { path = "../structs", version="0.1.0" }
+structs = { path = "../structs", version="0.1.0", features = ["bincode"] }

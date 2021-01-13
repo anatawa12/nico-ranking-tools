@@ -82,3 +82,75 @@ pub struct NewVideoInfo {
     pub tags: Vec<String>,
     pub genre: Option<String>,
 }
+
+#[cfg(feature="bincode")]
+pub mod bincode_impl {
+    use super::*;
+    use bincode::Options;
+    use serde::Deserialize;
+    use bincode::{ErrorKind, Deserializer, DefaultOptions};
+    use bincode::config::*;
+    use bincode::de::read::IoReader;
+    use std::io::{Read, Write};
+    use std::borrow::Borrow;
+
+    pub struct ReadIter<R> {
+        de: Option<Deserializer<IoReader<R>, WithOtherTrailing<WithOtherIntEncoding<DefaultOptions, FixintEncoding>, AllowTrailing>>>,
+        max: usize,
+    }
+
+    impl <R: Read> Iterator for ReadIter<R> {
+        type Item = NewVideoInfo;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            if let Some(de) = &mut self.de {
+                loop {
+                    match NewVideoInfo::deserialize(&mut *de) {
+                        Ok(data) => {
+                            // filter here
+                            if data.tags.iter().any(|x| x == "作業用BGM") {
+                                continue
+                            }
+                            return Some(data);
+                        }
+                        Err(err) => {
+                            match err.borrow() {
+                                ErrorKind::Io(err) => {
+                                    match err.kind() {
+                                        std::io::ErrorKind::UnexpectedEof => break,
+                                        _ => Err(err).unwrap()
+                                    }
+                                }
+                                err => Err(err).unwrap()
+                            }
+                        }
+                    }
+                }
+            }
+            self.de = None;
+            None
+        }
+
+        fn size_hint(&self) -> (usize, Option<usize>) {
+            (0, Some(self.max))
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn read_file<R: Read>(reader: &mut R, size: usize) -> ReadIter<&mut R> {
+        ReadIter {
+            de: Some(Deserializer::with_reader(reader, DefaultOptions::new()
+                .with_fixint_encoding()
+                .allow_trailing_bytes())),
+            max: size / 128,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn write_file<'a, I, W>(data: I, writer: &mut W)
+        where W: Write, I: Iterator<Item=&'a NewVideoInfo> {
+        for value in data {
+            bincode::serialize_into(&mut *writer, value).unwrap();
+        }
+    }
+}
