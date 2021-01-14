@@ -25,3 +25,4 @@ clap = { version = "2.33" }
 casey = { version = "0.3.3" }
 nico-snapshot-api = { path = "../nico-snapshot-api", version = "0.1.0" }
 structs = { path = "../structs", version="0.1.0" }
+either = { version = "1.6" }

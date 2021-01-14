@@ -28,7 +28,6 @@ fn main() {
         .build().unwrap();
 
     let progress = MultiProgress::new();
-    let out_file = options.out.clone();
 
     crossbeam::thread::scope(|s| {
         let (sender, receiver) = mpsc::channel::<Packet>();
@@ -40,21 +39,13 @@ fn main() {
                 .unwrap()
                 .block_on(async {
                     let mut ctx = Context::new(&client, &progress, sender);
-                    get_data(&mut ctx, options).await;
+                    get_data(&mut ctx, &options).await;
                     ctx.sender.send(Packet{ last_modified: FixedOffset::east(0).timestamp(0, 0), videos: Vec::new() }).unwrap();
                     eprintln!("finished main thread");
                 })
         });
         s.spawn(|_| {
-            match &out_file {
-                None => {
-                    output::run(receiver, stdout())
-                }
-                Some(name) => {
-                    create_dir_all(Path::new(&name).parent().unwrap()).unwrap();
-                    output::run(receiver, File::create(name).unwrap())
-                }
-            }
+            output::run(receiver, &options);
         });
         s.spawn(|_| {
             std::thread::sleep(std::time::Duration::from_secs(1));

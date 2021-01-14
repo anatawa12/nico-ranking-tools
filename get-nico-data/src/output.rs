@@ -1,10 +1,25 @@
 use crate::Packet;
-use std::io::{Write, BufWriter};
+use std::io::{Write, BufWriter, stdout, Stdout};
 use std::sync::mpsc::Receiver;
 use structs::NewVideoInfo;
 use chrono::Timelike;
+use crate::options::Options;
+use std::fs::{create_dir_all, File};
+use std::path::Path;
+use either::{Either, Left, Right};
 
-pub(crate) fn run<W: Write>(receiver: Receiver<Packet>, writer: W) {
+pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
+    let mut writer: Either<Stdout, File> = match &options.out {
+        None => Left(stdout()),
+        Some(name) => {
+            create_dir_all(Path::new(&name).parent().unwrap()).unwrap();
+            Right(File::create(name).unwrap())
+        }
+    };
+    let mut writer: &mut dyn Write = match &mut writer {
+        Left(left) => left,
+        Right(right) => right,
+    };
     let mut writer = BufWriter::new(writer);
     let mut list = Vec::<NewVideoInfo>::new();
     for packet in receiver.iter() {

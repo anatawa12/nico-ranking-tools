@@ -42,7 +42,7 @@ impl<'a> Context<'a> {
     }
 }
 
-pub(crate) async fn get_data(ctx: &mut Context<'_>, options: Options) {
+pub(crate) async fn get_data(ctx: &mut Context<'_>, options: &Options) {
     let since = options.since;
     let until = options.until;
     let per = options.duration;

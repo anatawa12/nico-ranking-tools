@@ -381,6 +381,7 @@ dependencies = [
  "clap",
  "crossbeam",
  "crossterm",
+ "either",
  "indicatif",
  "lazy_static",
  "nico-snapshot-api",
