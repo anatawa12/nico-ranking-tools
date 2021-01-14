@@ -20,12 +20,21 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
         Right(right) => right,
     };
     let mut writer = BufWriter::new(writer);
+
+    let mut contents_id_out = options.contents_id_out.as_ref().map(|name| {
+        create_dir_all(Path::new(&name).parent().unwrap()).unwrap();
+        BufWriter::new(File::create(name).unwrap())
+    });
+
     let mut list = Vec::<NewVideoInfo>::new();
     for packet in receiver.iter() {
         if packet.last_modified.offset().utc_minus_local() == 0 && packet.last_modified.timestamp() == 0 {
             break
         }
         for video in packet.videos {
+            if let Some(out) = &mut contents_id_out {
+                writeln!(out, "{}", video.content_id.as_ref().unwrap()).unwrap();
+            }
             list.push (NewVideoInfo {
                 last_modified: packet.last_modified,
                 content_id: video.content_id.unwrap(),

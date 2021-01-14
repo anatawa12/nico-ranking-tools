@@ -34,6 +34,11 @@ pub fn parse_options() -> Options {
             .takes_value(true)
             .short("-o")
             .long("--out"))
+        .arg(Arg::with_name("contents-id-out")
+            .help("file to write contents id proceed.")
+            .takes_value(true)
+            .short("-c")
+            .long("--content-id-out"))
         ;
     let matches = app.get_matches();
 
@@ -59,11 +64,14 @@ pub fn parse_options() -> Options {
 
     let out = matches.value_of("out-to").map(|x| x.to_owned());
 
+    let contents_id_out = matches.value_of("contents-id-out").map(|x| x.to_owned());
+
     Options {
         since,
         until,
         duration,
         out,
+        contents_id_out
     }
 }
 
@@ -72,4 +80,5 @@ pub struct Options {
     pub until: Option<DateTime<FixedOffset>>,
     pub duration: Duration,
     pub out: Option<String>,
+    pub contents_id_out: Option<String>,
 }
