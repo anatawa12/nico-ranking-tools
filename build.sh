@@ -10,7 +10,7 @@ else
   TARGET_PARAM="--target $TARGET"
 fi
 
-PROJECTS="get-nico-data html-gen merge-nico-data merge-rankings sort-ranking nico-ranking"
+PROJECTS="get-nico-data html-gen sort-ranking nico-ranking"
 
 rm -rf dist
 mkdir -p dist
