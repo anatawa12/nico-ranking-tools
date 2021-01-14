@@ -2,7 +2,6 @@ use crate::Packet;
 use std::io::{Write, BufWriter, stdout, Stdout};
 use std::sync::mpsc::Receiver;
 use structs::NewVideoInfo;
-use chrono::Timelike;
 use crate::options::Options;
 use std::fs::{create_dir_all, File};
 use std::path::Path;
@@ -16,7 +15,7 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
             Right(File::create(name).unwrap())
         }
     };
-    let mut writer: &mut dyn Write = match &mut writer {
+    let writer: &mut dyn Write = match &mut writer {
         Left(left) => left,
         Right(right) => right,
     };
@@ -47,5 +46,5 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
         }
     }
     eprintln!("writeing.....");
-    bincode::serialize_into(&mut writer, &list);
+    bincode::serialize_into(&mut writer, &list).unwrap();
 }

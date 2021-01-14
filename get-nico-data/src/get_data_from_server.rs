@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, FixedOffset, Utc, TimeZone, Local};
+use chrono::{DateTime, Duration, FixedOffset, Utc, Local};
 use reqwest::{StatusCode, Client};
 use std::time::Instant;
 use indicatif::{MultiProgress};

@@ -4,14 +4,11 @@ mod get_data_from_server;
 mod output;
 
 use chrono::{DateTime, FixedOffset, TimeZone};
-use std::io::{stdout};
 use indicatif::{MultiProgress};
 use crate::options::{parse_options};
 use nico_snapshot_api::VideoInfo;
 use std::sync::mpsc;
 use crate::get_data_from_server::{get_data, Context};
-use std::path::Path;
-use std::fs::{create_dir_all, File};
 
 const DEFAULT_USER_AGENT: &str = concat!("view-counter-times-video-length-ranking-getting-daemon/", env!("CARGO_PKG_VERSION"));
 

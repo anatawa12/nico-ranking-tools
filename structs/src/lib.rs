@@ -35,14 +35,6 @@ pub struct RankingVideoData {
     pub start_time: DateTime<FixedOffset>,
 }
 
-fn is_max_value_u32(v: &u32) -> bool {
-    *v == u32::max_value()
-}
-
-fn is_max_value_u64(v: &u64) -> bool {
-    *v == u64::max_value()
-}
-
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
 pub struct RankingBin {

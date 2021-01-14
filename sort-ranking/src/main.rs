@@ -1,10 +1,8 @@
 use crate::options::{parse_options, RankingType};
-use std::fs::{File, metadata};
-use std::io::{BufReader, BufWriter, Read, Write};
+use std::fs::{File};
+use std::io::{BufReader, BufWriter};
 use structs::{NewVideoInfo};
 use rayon::prelude::*;
-use bincode::{ErrorKind, Deserializer, DefaultOptions};
-use std::borrow::Borrow;
 use std::time::Instant;
 
 mod options;
@@ -29,7 +27,7 @@ fn main() {
     eprintln!("writing...");
     let output_file = File::create(options.output_bin).unwrap();
     let mut output_file = BufWriter::new(output_file);
-    bincode::serialize_into(&mut output_file, &videos);
+    bincode::serialize_into(&mut output_file, &videos).unwrap();
     eprintln!("writing {}s", (Instant::now() - start).as_secs_f64());
 }
 
