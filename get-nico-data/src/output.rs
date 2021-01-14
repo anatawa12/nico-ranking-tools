@@ -34,6 +34,7 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
         for video in packet.videos {
             if let Some(out) = &mut contents_id_out {
                 writeln!(out, "{}", video.content_id.as_ref().unwrap()).unwrap();
+                out.flush().unwrap();
             }
             list.push (NewVideoInfo {
                 last_modified: packet.last_modified,
