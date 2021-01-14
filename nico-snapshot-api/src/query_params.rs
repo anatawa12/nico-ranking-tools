@@ -282,7 +282,7 @@ impl RankingSorting {
     }
 
     pub fn increasing(self) -> SortingWithOrder {
-        SortingWithOrder::Decreasing(self)
+        SortingWithOrder::Increasing(self)
     }
 }
 
