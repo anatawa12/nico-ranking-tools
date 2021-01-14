@@ -48,7 +48,7 @@ pub fn parse_options() -> Options {
                 .unwrap_or_else(|err| exiting_errf!("since: {}", err)))
             .unwrap()
             .and_hms(0, 0, 0))
-        .unwrap_or_else(|| jst_timezone.ymd(2007, 03, 06).and_hms(0, 0, 0));
+        .unwrap_or_else(|| jst_timezone.ymd(2007, 03, 01).and_hms(0, 0, 0));
 
     let until = matches.value_of("until")
         .map(|date| jst_timezone
