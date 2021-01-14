@@ -3,7 +3,7 @@ mod options;
 mod get_data_from_server;
 mod output;
 
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, TimeZone};
 use std::io::{stdout};
 use indicatif::{MultiProgress};
 use crate::options::{parse_options};
@@ -41,6 +41,7 @@ fn main() {
                 .block_on(async {
                     let mut ctx = Context::new(&client, &progress, sender);
                     get_data(&mut ctx, options).await;
+                    ctx.sender.send(Packet{ last_modified: FixedOffset::east(0).timestamp(0, 0), videos: Vec::new() }).unwrap();
                     eprintln!("finished main thread");
                 })
         });

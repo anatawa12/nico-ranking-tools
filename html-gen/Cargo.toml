@@ -11,3 +11,5 @@ license = "MIT"
 itertools = { version = "0.10" }
 num-format = { version = "0.4" }
 indicatif = { version = "0.15" }
+structs = { path = "../structs", version="0.1.0" }
+bincode = { version = "1.0" }

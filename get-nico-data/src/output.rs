@@ -2,12 +2,17 @@ use crate::Packet;
 use std::io::{Write, BufWriter};
 use std::sync::mpsc::Receiver;
 use structs::NewVideoInfo;
+use chrono::Timelike;
 
 pub(crate) fn run<W: Write>(receiver: Receiver<Packet>, writer: W) {
     let mut writer = BufWriter::new(writer);
+    let mut list = Vec::<NewVideoInfo>::new();
     for packet in receiver.iter() {
+        if packet.last_modified.offset().utc_minus_local() == 0 && packet.last_modified.timestamp() == 0 {
+            break
+        }
         for video in packet.videos {
-            bincode::serialize_into(&mut writer, &NewVideoInfo {
+            list.push (NewVideoInfo {
                 last_modified: packet.last_modified,
                 content_id: video.content_id.unwrap(),
                 title: video.title.unwrap(),
@@ -23,7 +28,9 @@ pub(crate) fn run<W: Write>(receiver: Receiver<Packet>, writer: W) {
                 category_tags: video.category_tags,
                 tags: video.tags.unwrap(),
                 genre: video.genre,
-            }).unwrap();
+            });
         }
     }
+    eprintln!("writeing.....");
+    bincode::serialize_into(&mut writer, &list);
 }

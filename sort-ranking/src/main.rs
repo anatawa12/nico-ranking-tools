@@ -2,7 +2,6 @@ use crate::options::{parse_options, RankingType};
 use std::fs::{File, metadata};
 use std::io::{BufReader, BufWriter, Read, Write};
 use structs::{NewVideoInfo};
-use structs::bincode_impl::{read_file, write_file};
 use rayon::prelude::*;
 use bincode::{ErrorKind, Deserializer, DefaultOptions};
 use std::borrow::Borrow;
@@ -16,9 +15,8 @@ fn main() {
     let start = Instant::now();
     eprintln!("reading file...");
     let input_file = File::open(&options.input_bin).unwrap();
-    let size = metadata(&options.input_bin).unwrap().len();
     let mut input_file = BufReader::new(input_file);
-    let mut videos: Vec<_> = read_file(&mut input_file, size as usize).collect();
+    let mut videos: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_file).unwrap();
     let key_gen = key_generator_of(options.ranking_type);
     eprintln!("reading file took {}s", (Instant::now() - start).as_secs_f64());
 
@@ -31,7 +29,7 @@ fn main() {
     eprintln!("writing...");
     let output_file = File::create(options.output_bin).unwrap();
     let mut output_file = BufWriter::new(output_file);
-    write_file(videos.iter(), &mut output_file);
+    bincode::serialize_into(&mut output_file, &videos);
     eprintln!("writing {}s", (Instant::now() - start).as_secs_f64());
 }
 
