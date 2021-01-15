@@ -34,11 +34,10 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub(crate) fn get_wait_until(&self, request_start: Instant) -> Instant {
-        let one_sec_since_req_start = request_start + Duration::seconds(1).to_std().unwrap();
+    pub(crate) fn get_wait_until(&self, _request_start: Instant) -> Instant {
         let last_req_time_since_now = Instant::now() + self.last_req_time.to_std().unwrap();
 
-        return std::cmp::max(one_sec_since_req_start, last_req_time_since_now)
+        return last_req_time_since_now
     }
 }
 
