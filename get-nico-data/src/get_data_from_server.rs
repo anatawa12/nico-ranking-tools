@@ -130,7 +130,7 @@ async fn do_get_for_one_period(
                 ctx,
                 &mut progress,
                 5,
-                5,
+                1,
                 || { format!("{}..{}#{}", since.format(DATE_FORMAT), until.format(DATE_FORMAT), got) },
                 move |cli| { async move { params.get(&cli).await } }
             ).await;
