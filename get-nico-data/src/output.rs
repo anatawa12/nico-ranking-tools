@@ -6,6 +6,7 @@ use crate::options::Options;
 use std::fs::{create_dir_all, File};
 use std::path::Path;
 use either::{Either, Left, Right};
+use chrono::Utc;
 
 pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
     let mut writer: Either<Stdout, File> = match &options.out {
@@ -37,7 +38,7 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
                 out.flush().unwrap();
             }
             list.push (NewVideoInfo {
-                last_modified: packet.last_modified,
+                last_modified: packet.last_modified.with_timezone(&Utc),
                 content_id: video.content_id.unwrap(),
                 title: video.title.unwrap(),
                 description: video.description,
@@ -45,10 +46,10 @@ pub(crate) fn run(receiver: Receiver<Packet>, options: &Options) {
                 mylist_counter: video.mylist_counter.unwrap(),
                 length_seconds: video.length_seconds.unwrap(),
                 thumbnail_url: video.thumbnail_url,
-                start_time: video.start_time.unwrap(),
+                start_time: video.start_time.unwrap().with_timezone(&Utc),
                 last_res_body: video.last_res_body,
                 comment_counter: video.comment_counter.unwrap(),
-                last_comment_time: video.last_comment_time,
+                last_comment_time: video.last_comment_time.map(|x| x.with_timezone(&Utc)),
                 category_tags: video.category_tags,
                 tags: video.tags.unwrap(),
                 genre: video.genre,

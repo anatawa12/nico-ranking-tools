@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, Utc};
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -58,7 +58,7 @@ pub struct RankingVideoDataBin {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewVideoInfo {
-    pub last_modified: DateTime<FixedOffset>,
+    pub last_modified: DateTime<Utc>,
     pub content_id: String,
     pub title: String,
     pub description	: Option<String>,
@@ -66,10 +66,10 @@ pub struct NewVideoInfo {
     pub mylist_counter: u32,
     pub length_seconds: std::time::Duration,
     pub thumbnail_url: Option<String>,
-    pub start_time: DateTime<FixedOffset>,
+    pub start_time: DateTime<Utc>,
     pub last_res_body: Option<String>,
     pub comment_counter: u32,
-    pub last_comment_time: Option<DateTime<FixedOffset>>,
+    pub last_comment_time: Option<DateTime<Utc>>,
     pub category_tags: Option<String>,
     pub tags: Vec<String>,
     pub genre: Option<String>,
