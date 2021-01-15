@@ -225,7 +225,7 @@ async fn http_request<'a, Fut: Future<Output = reqwest::Result<R>> + 'a, R>(
                         | StatusCode::NOT_EXTENDED
                         | StatusCode::NETWORK_AUTHENTICATION_REQUIRED
                         => {
-                            let err = format!("known 5xx status so wait for {} minutes", minutes_for_wait_5xx);
+                            let err = format!("known 5xx status so wait for {} minutes: {}", minutes_for_wait_5xx, code);
                             progress.add_err(&format!("{}: {}", get_name(), err));
                             progress.set_msg_keeping_prefix(err);
                             tokio::time::delay_for(Duration::minutes(minutes_for_wait_5xx).to_std().unwrap()).await;
@@ -234,7 +234,7 @@ async fn http_request<'a, Fut: Future<Output = reqwest::Result<R>> + 'a, R>(
                         _ => {
                             progress.add_err(&format!("unknown response: {}", code));
 
-                            progress.set_msg_keeping_prefix(format!("unknown status so wait for {} minutes", minutes_for_wait_unknown));
+                            progress.set_msg_keeping_prefix(format!("unknown status so wait for {} minutes: {}", minutes_for_wait_unknown, code));
                             tokio::time::delay_for(Duration::minutes(minutes_for_wait_unknown).to_std().unwrap()).await;
                         }
                     }
