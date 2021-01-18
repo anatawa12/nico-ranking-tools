@@ -1,8 +1,8 @@
 use serde::{Serializer, Deserializer, Serialize, Deserialize};
 use serde::de::Visitor;
 use std::marker::PhantomData;
-use serde::export::fmt::Display;
 use itertools::Itertools;
+use std::fmt::Display;
 use std::str::FromStr;
 use std::time::Duration;
 use reqwest::StatusCode;
