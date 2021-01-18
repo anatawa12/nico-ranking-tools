@@ -150,7 +150,8 @@ async fn do_get_for_one_period(
             }
 
             let until = ctx.get_wait_until(request_start);
-            progress.set_msg_keeping_prefix(format!("waiting for server load reduction until {}",
+            progress.set_msg_keeping_prefix(format!("waiting for server load reduction since {} until {}",
+                                                    Local::now(),
                                                     Local::now() + Duration::from_std(until - Instant::now()).unwrap()));
             tokio::time::delay_until(ctx.get_wait_until(request_start).into())
                 .await;
