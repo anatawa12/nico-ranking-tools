@@ -10,6 +10,7 @@ use std::borrow::ToOwned;
 use std::mem::swap;
 use std::sync::mpsc::{Sender};
 use crate::Packet;
+use std::cmp::max;
 
 const DATE_FORMAT: &str = "%Y/%m/%d";
 
@@ -36,8 +37,9 @@ impl<'a> Context<'a> {
 
     pub(crate) fn get_wait_until(&self, _request_start: Instant) -> Instant {
         let last_req_time_since_now = Instant::now() + self.last_req_time.to_std().unwrap();
+        let ten_ms_since_now = Instant::now() + std::time::Duration::from_millis(10);
 
-        return last_req_time_since_now
+        return max(last_req_time_since_now, ten_ms_since_now);
     }
 }
 
