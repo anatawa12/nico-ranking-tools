@@ -28,6 +28,7 @@ fn main() {
     let per_page: usize = 200;
     let mut page_number: u64 = 0;
     let progress = ProgressBar::new(input_bin_size / 89 / per_page as u64);
+    progress.enable_steady_tick(10);
     set_style(&progress);
 
     let list: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_bin).unwrap();
@@ -39,7 +40,6 @@ fn main() {
         .with_has_next()
         .enumerate() {
         progress.set_message(&format!("page #{}", page_number));
-        progress.tick();
         let versions: Vec<_> = elements.collect();
         let last_page_count = versions.len() as u64;
         let info = PageInfo {
