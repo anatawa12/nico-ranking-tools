@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, FixedOffset, Utc, Local};
-use reqwest::{StatusCode, Client};
+use reqwest::{StatusCode, Client, Error};
 use std::time::Instant;
 use indicatif::{MultiProgress};
 use crate::progress::ProgressStatus;
@@ -11,6 +11,7 @@ use std::mem::swap;
 use std::sync::mpsc::{Sender};
 use crate::Packet;
 use std::cmp::max;
+use tokio::time::{timeout, Elapsed};
 
 const DATE_FORMAT: &str = "%Y/%m/%d";
 
@@ -207,7 +208,14 @@ async fn http_request<'a, Fut: Future<Output = reqwest::Result<R>> + 'a, R>(
     loop {
         progress.set_msg_keeping_prefix(&format!("waiting response..."));
         let request_start = Instant::now();
-        match get(ctx.client).await {
+        let response = match timeout(std::time::Duration::from_secs(10), get(ctx.client)).await {
+            Ok(r) => r,
+            Err(err) => {
+                progress.add_err(&format!("time out getting {}: {}", get_name(), err));
+                continue
+            }
+        };
+        match response {
             Ok(value) => {
                 let request_end = Instant::now();
                 return (value, request_end - request_start);
