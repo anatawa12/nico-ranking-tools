@@ -8,18 +8,20 @@ use crate::numeral_print::numeral_to_string;
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::index_file::RankingPage;
 use structs::NewVideoInfo;
+use crate::progress_reader::ProgressReader;
 
 mod options;
 mod utils;
 mod ymd_print;
 mod numeral_print;
 mod index_file;
+mod progress_reader;
 
 fn main() {
     let options = parse_options();
 
     let input_bin = File::open(&options.input_bin).unwrap();
-    let mut input_bin = BufReader::new(input_bin);
+    let input_bin = BufReader::new(input_bin);
     let input_bin_size = fs::metadata(&options.input_bin).unwrap().len();
 
     fs::create_dir_all(&options.output_dir).unwrap();
@@ -27,11 +29,21 @@ fn main() {
     let mut page_infos = Vec::<RankingPage>::new();
     let per_page: usize = 200;
     let mut page_number: u64 = 0;
-    let progress = ProgressBar::new(input_bin_size / 89 / per_page as u64);
+
+    let progress = ProgressBar::new(input_bin_size);
+    progress.set_message("reading binary...");
     progress.enable_steady_tick(10);
     set_style(&progress);
+    let mut input_bin = ProgressReader::new(&progress, input_bin);
 
     let list: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_bin).unwrap();
+
+    progress.finish();
+    drop(progress);
+
+    let progress = ProgressBar::new(list.len() as u64);
+    progress.enable_steady_tick(10);
+    set_style(&progress);
 
     for (index, (elements, has_next)) in list.iter()
         .enumerate()
