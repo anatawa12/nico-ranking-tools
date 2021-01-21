@@ -1,9 +1,10 @@
 use crate::options::{parse_options, RankingType};
 use std::fs::{File};
-use std::io::{BufReader, BufWriter};
+use std::io::{BufReader, BufWriter, Read};
 use structs::{NewVideoInfo};
 use rayon::prelude::*;
 use std::time::Instant;
+use indicatif::ProgressBar;
 
 mod options;
 
@@ -14,7 +15,7 @@ fn main() {
     eprintln!("reading file...");
     let input_file = File::open(&options.input_bin).unwrap();
     let mut input_file = BufReader::new(input_file);
-    let mut videos: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_file).unwrap();
+    let mut videos: Vec<NewVideoInfo> = get_videos(&mut input_file);
     let key_gen = key_generator_of(options.ranking_type);
     eprintln!("reading file took {}s", (Instant::now() - start).as_secs_f64());
 
@@ -29,6 +30,17 @@ fn main() {
     let mut output_file = BufWriter::new(output_file);
     bincode::serialize_into(&mut output_file, &videos).unwrap();
     eprintln!("writing {}s", (Instant::now() - start).as_secs_f64());
+}
+
+fn get_videos<R: Read>(input_bin_size: R) -> Vec<NewVideoInfo> {
+
+    let progress = ProgressBar::new(input_bin_size);
+    progress.set_message("reading binary...");
+    progress.enable_steady_tick(10);
+    set_style(&progress);
+    let mut input_bin = ProgressReader::new(&progress, input_bin);
+
+    return bincode::deserialize_from(&mut input_bin).unwrap();
 }
 
 fn key_generator_of(for_type: RankingType) -> Box<dyn Fn(&NewVideoInfo) -> u64 + Sync> {
