@@ -41,7 +41,7 @@ fn main() {
     progress.finish();
     drop(progress);
 
-    let progress = ProgressBar::new(list.len() as u64);
+    let progress = ProgressBar::new(list.len() as u64 / per_page as u64);
     progress.enable_steady_tick(10);
     set_style(&progress);
 
