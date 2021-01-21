@@ -17,9 +17,8 @@ fn main() {
     let start = Instant::now();
     eprintln!("reading file...");
     let input_bin_size = std::fs::metadata(&options.input_bin).unwrap().len();
-    let input_file = File::open(&options.input_bin).unwrap();
-    let mut input_file = BufReader::new(input_file);
-    let mut videos: Vec<NewVideoInfo> = get_videos(&mut input_file, input_bin_size);
+    let mut input_bin = File::open(&options.input_bin).unwrap();
+    let mut videos: Vec<NewVideoInfo> = get_videos(&mut input_bin, input_bin_size);
     let key_gen = key_generator_of(options.ranking_type);
     eprintln!("reading file took {}s", (Instant::now() - start).as_secs_f64());
 
@@ -46,12 +45,12 @@ fn main() {
 }
 
 fn get_videos<R: Read>(input_bin: R, input_bin_size: u64) -> Vec<NewVideoInfo> {
-
     let progress = ProgressBar::new(input_bin_size);
     progress.set_message("reading binary...");
     progress.enable_steady_tick(10);
     set_style(&progress);
     let mut input_bin = ProgressReader::new(&progress, input_bin);
+    let mut input_bin = BufReader::new(input_bin);
 
     return bincode::deserialize_from(&mut input_bin).unwrap();
 }
