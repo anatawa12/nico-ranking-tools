@@ -21,7 +21,6 @@ fn main() {
     let options = parse_options();
 
     let input_bin = File::open(&options.input_bin).unwrap();
-    let input_bin = BufReader::new(input_bin);
     let input_bin_size = fs::metadata(&options.input_bin).unwrap().len();
 
     fs::create_dir_all(&options.output_dir).unwrap();
@@ -34,8 +33,9 @@ fn main() {
     progress.set_message("reading binary...");
     progress.enable_steady_tick(10);
     set_style(&progress);
-    let mut input_bin = ProgressReader::new(&progress, input_bin);
+    let input_bin = ProgressReader::new(&progress, input_bin);
 
+    let mut input_bin = BufReader::new(input_bin);
     let list: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_bin).unwrap();
 
     progress.finish();
