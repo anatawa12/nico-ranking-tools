@@ -1,23 +1,22 @@
 use super::FilterJson;
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
-use serde::export::Formatter;
 use serde::de::Unexpected;
-use serde::export::fmt::Display;
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use super::response::ResponseJson;
-use reqwest::StatusCode;
+use super::serializers;
 
 #[derive(Serialize, Eq, PartialEq, Debug, Clone)]
 pub struct QueryParams {
     q: String,
     #[serde(skip_serializing_if="Vec::is_empty")]
     #[serde(default="Vec::new")]
-    #[serde(with="comma_string_vec")]
+    #[serde(with="serializers::comma_string_vec")]
     targets: Vec<String>,
     #[serde(skip_serializing_if="Vec::is_empty")]
     #[serde(default="Vec::new")]
-    #[serde(with="comma_string_vec")]
-    fields: Vec<String>,
+    #[serde(with="serializers::comma_field_name_vec")]
+    fields: Vec<FieldName>,
     #[serde(with="string_json")]
     #[serde(rename="jsonFilter")]
     #[serde(skip_serializing_if="Option::is_none")]
@@ -59,8 +58,8 @@ impl QueryParams {
         self.targets.append(&mut args.iter().map(|x| (x as &str).to_owned()).collect());
     }
 
-    pub fn with_fields(&mut self, args: &[&str]) {
-        self.fields.append(&mut args.iter().map(|x| (x as &str).to_owned()).collect());
+    pub fn with_fields(&mut self, args: &[FieldName]) {
+        self.fields.append(&mut args.to_vec());
     }
 
     pub fn set_filter(&mut self, filter: FilterJson) {
@@ -134,7 +133,6 @@ impl <'de> Deserialize<'de> for SortingWithOrder {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where
         D: Deserializer<'de> {
         use serde::de::Visitor;
-        use serde::de::Expected;
         struct VisitorImpl;
         impl <'de> Visitor<'de> for VisitorImpl {
             type Value = SortingWithOrder;
@@ -169,45 +167,106 @@ impl <'de> Deserialize<'de> for SortingWithOrder {
     }
 }
 
-macro_rules! ranking_sorting {
-    ( $( $name:ident ( $str: expr ) ),+ $(,)? ) => {
+macro_rules! string_enum {
+    ( $type_name: ident, $value_name_str: expr, $error_name: ident : $( $name:ident ( $str: expr ) ),+ $(,)? ) => {
         #[derive(Eq, PartialEq, Debug, Copy, Clone)]
-        pub enum RankingSorting {
+        pub enum $type_name {
             $(
                 $name,
             )*
         }
 
-        impl RankingSorting {
+        impl $type_name {
             pub fn to_str(&self) -> &'static str {
                 match self {
                     $(
-                        RankingSorting::$name => $str,
+                        $type_name::$name => $str,
                     )*
                 }
             }
 
-            pub fn from_str(str: &str) -> Option<RankingSorting> {
+            pub fn from_str(str: &str) -> Option<$type_name> {
                 match str {
                     $(
-                        $str => Some(RankingSorting::$name),
+                        $str => Some($type_name::$name),
                     )*
                     _ => None
                 }
             }
 
-            fn expecting_string() -> &'static str {
-                concat!("one of ",
-                    $(
-                        $str, ", ",
-                    )*
-                )
+            const ALL_VALUES: &'static [$type_name] = &[
+                $(
+                    $type_name::$name,
+                )*
+            ];
+
+            #[allow(dead_code)]
+            pub fn all_values() -> &'static [$type_name] {
+                $type_name::ALL_VALUES
             }
         }
-    };
+
+        impl FromStr for $type_name {
+            type Err = $error_name;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                $type_name::from_str(s).ok_or($error_name { value: s.to_owned() })
+            }
+        }
+
+        impl Display for $type_name {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                f.write_str(self.to_str())
+            }
+        }
+
+        pub struct $error_name {
+            value: String,
+        }
+
+        impl Display for $error_name {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                f.write_str(concat!("expected ", $value_name_str, " but was "))?;
+                f.write_str(&self.value)?;
+                Ok(())
+            }
+        }
+
+        impl Serialize for $type_name {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where
+                S: Serializer {
+                serializer.serialize_str(self.to_str())
+            }
+        }
+
+        impl <'de> Deserialize<'de> for $type_name {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where
+                D: Deserializer<'de> {
+                use serde::de::Visitor;
+                struct VisitorImpl;
+                impl <'de> Visitor<'de> for VisitorImpl {
+                    type Value = $type_name;
+
+                    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+                        write!(formatter, $value_name_str)
+                    }
+
+                    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: serde::de::Error, {
+                        if let Some(val) = $type_name::from_str(v) {
+                            Ok(val)
+                        } else {
+                            Err(E::invalid_value(Unexpected::Str(v), &self))
+                        }
+                    }
+                }
+                deserializer.deserialize_str(VisitorImpl)
+            }
+        }
+   };
 }
 
-ranking_sorting! {
+string_enum! {
+    RankingSorting, "ranking sorting name", RankingSortingFromStrError:
     ViewCounter("viewCounter"),
     MylistCounter("mylistCounter"),
     LengthSeconds("lengthSeconds"),
@@ -222,71 +281,26 @@ impl RankingSorting {
     }
 
     pub fn increasing(self) -> SortingWithOrder {
-        SortingWithOrder::Decreasing(self)
+        SortingWithOrder::Increasing(self)
     }
 }
 
-pub struct RankingSortingFromStrError;
-
-impl FromStr for RankingSorting {
-    type Err = RankingSortingFromStrError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        RankingSorting::from_str(s).ok_or(RankingSortingFromStrError)
-    }
-}
-
-impl Display for RankingSorting {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.to_str())
-    }
-}
-
-impl Serialize for RankingSorting {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where
-        S: Serializer {
-        serializer.serialize_str(self.to_str())
-    }
-}
-impl <'de> Deserialize<'de> for RankingSorting {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where
-        D: Deserializer<'de> {
-        use serde::de::Visitor;
-        struct VisitorImpl;
-        impl <'de> Visitor<'de> for VisitorImpl {
-            type Value = RankingSorting;
-
-            fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-                write!(formatter, "{}", RankingSorting::expecting_string())
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: serde::de::Error, {
-                if let Some(val) = RankingSorting::from_str(v) {
-                    Ok(val)
-                } else {
-                    Err(E::invalid_value(Unexpected::Str(v), &self))
-                }
-            }
-        }
-        deserializer.deserialize_str(VisitorImpl)
-    }
-}
-
-mod comma_string_vec {
-    use serde::{Serializer, Deserializer, Deserialize};
-
-    pub(super) fn serialize<S>(vec: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
-        let str = vec.join(",");
-        serializer.serialize_str(&str)
-    }
-
-    #[allow(dead_code)]
-    pub(super) fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error> where
-        D: Deserializer<'de> {
-        let str = <String as Deserialize>::deserialize(deserializer)?;
-        Ok(str.split("").map(|str| str.to_string()).collect())
-    }
+string_enum! {
+    FieldName, "field name", FieldNameFromStrError:
+    ContentId("contentId"),
+    Title("title"),
+    Description("description"),
+    ViewCounter("viewCounter"),
+    MylistCounter("mylistCounter"),
+    LengthSeconds("lengthSeconds"),
+    ThumbnailUrl("thumbnailUrl"),
+    StartTime("startTime"),
+    LastResBody("lastResBody"),
+    CommentCounter("commentCounter"),
+    LastCommentTime("lastCommentTime"),
+    CategoryTags("categoryTags"),
+    Tags("tags"),
+    Genre("genre"),
 }
 
 mod string_json {
@@ -294,7 +308,6 @@ mod string_json {
     use super::FilterJson;
     use serde::ser::Error as SerError;
     use serde::de::Error as DeError;
-    use serde_json::Error;
 
     pub(super) fn serialize<S>(json: &Option<FilterJson>, serializer: S) -> Result<S::Ok, S::Error>
         where S: Serializer {

@@ -99,7 +99,7 @@ fn run_get_nico_data(options: &Options, work_dir: &Path) {
     if let Some(duration) = options.duration {
         cmd.args(&["--duration", &duration_to_string(duration)]);
     }
-    let temp_file_keeper = if let Some(json) = &options.filter {
+    let _temp_file_keeper = if let Some(json) = &options.filter {
         let mut named = NamedTempFile::new().unwrap();
         serde_json::to_writer(BufWriter::new(&mut named), json).unwrap();
         named.flush().unwrap();

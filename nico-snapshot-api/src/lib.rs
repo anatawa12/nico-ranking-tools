@@ -1,6 +1,7 @@
 mod filter_json;
 mod query_params;
 mod response;
+mod serializers;
 
 pub use filter_json::*;
 pub use query_params::*;
@@ -13,7 +14,7 @@ const SEARCH_SNAPSHOT_V2_VERSION: &str = "https://api.search.nicovideo.jp/api/v2
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Copy, Clone)]
 pub struct SnapshotVersion {
-    last_modified: DateTime<FixedOffset>
+    pub last_modified: DateTime<FixedOffset>
 }
 
 pub async fn snapshot_version(client: &Client) -> reqwest::Result<SnapshotVersion> {

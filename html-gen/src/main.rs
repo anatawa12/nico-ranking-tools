@@ -1,47 +1,58 @@
 use crate::options::parse_options;
 use crate::utils::MyIterUtil;
 use std::fs::{self, File};
-use std::io::{BufReader, BufWriter, BufRead, Write};
+use std::io::{BufReader, BufWriter, Write};
 use itertools::Itertools;
 use crate::ymd_print::ymd_to_string;
-use std::time::Duration;
-use std::str::FromStr;
 use crate::numeral_print::numeral_to_string;
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::index_file::RankingPage;
+use structs::NewVideoInfo;
+use crate::progress_reader::ProgressReader;
 
 mod options;
 mod utils;
 mod ymd_print;
 mod numeral_print;
 mod index_file;
+mod progress_reader;
 
 fn main() {
     let options = parse_options();
 
-    let input_csv = File::open(&options.input_csv).unwrap();
-    let input_csv = BufReader::new(input_csv);
-    let input_csv_size = fs::metadata(&options.input_csv).unwrap().len();
+    let input_bin = File::open(&options.input_bin).unwrap();
+    let input_bin_size = fs::metadata(&options.input_bin).unwrap().len();
 
     fs::create_dir_all(&options.output_dir).unwrap();
 
     let mut page_infos = Vec::<RankingPage>::new();
     let per_page: usize = 200;
     let mut page_number: u64 = 0;
-    let progress = ProgressBar::new(input_csv_size / 89 / per_page as u64);
+
+    let progress = ProgressBar::new(input_bin_size);
+    progress.set_message("reading binary...");
+    progress.enable_steady_tick(10);
+    set_style(&progress);
+    let input_bin = ProgressReader::new(&progress, input_bin);
+
+    let mut input_bin = BufReader::new(input_bin);
+    let list: Vec<NewVideoInfo> = bincode::deserialize_from(&mut input_bin).unwrap();
+
+    progress.finish();
+    drop(progress);
+
+    let progress = ProgressBar::new(list.len() as u64 / per_page as u64);
+    progress.enable_steady_tick(10);
     set_style(&progress);
 
-    for (index, (versions, has_next)) in input_csv.lines()
-        .skip(1) // skip header line
-        .filter_map(|x| x.ok())
+    for (index, (elements, has_next)) in list.iter()
+        .enumerate()
         .chunks(per_page)
         .into_iter()
         .with_has_next()
-        .enumerate()
-    {
+        .enumerate() {
         progress.set_message(&format!("page #{}", page_number));
-        progress.tick();
-        let versions: Vec<_> = versions.collect();
+        let versions: Vec<_> = elements.collect();
         let last_page_count = versions.len() as u64;
         let info = PageInfo {
             per_page: per_page as u64,
@@ -67,8 +78,8 @@ fn main() {
     index_file::index_file(&options.output_dir, &page_infos).unwrap();
 }
 
-fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<u64>
-    where Itr : IntoIterator<Item = String> {
+fn process_a_chunk<'a, Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> std::io::Result<u64>
+    where Itr : IntoIterator<Item = (usize, &'a NewVideoInfo)> {
     let output_html = format!("{}/ranking-{}.html", output_dir, info.page_number);
     let output_html = File::create(output_html)?;
     let mut output_html = BufWriter::new(output_html);
@@ -77,15 +88,12 @@ fn process_a_chunk<Itr>(versions: Itr, output_dir: &String, info: &PageInfo) -> 
     write_heading(&mut output_html, info)?;
     writeln!(&mut output_html, r#"<ul class="container">"#)?;
 
-    for version in versions {
-        let elements: Vec<_> = version.split(",").collect();
-        let rank = u64::from_str(elements[0]).unwrap();
-        let sum_dur = Duration::new(u64::from_str(elements[1]).unwrap(), 0);
-        let video_id = elements[2];
-        //let get_at = elements[3];
-        //let posted_at = elements[4];
-        let view_count = u64::from_str(elements[5]).unwrap();
-        let video_length = Duration::new(u64::from_str(elements[6]).unwrap(), 0);
+    for (index, version) in versions {
+        let rank = index + 1;
+        let sum_dur = version.view_counter * version.length_seconds;
+        let video_id = &version.content_id;
+        let view_count = version.view_counter as u64;
+        let video_length = version.length_seconds;
 
         writeln!(&mut output_html, r#"    <li class="grid-item">"#)?;
         writeln!(&mut output_html, r#"        <div class="ranking-header"><a href="https://nicovideo.jp/watch/{}" class="ranking-header-link">#{}</a></div>"#,

@@ -1,7 +1,5 @@
 use chrono::{DateTime, FixedOffset};
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
-use std::ops::Not;
-use serde::ser::SerializeMap;
+use serde::{Serialize, Deserialize};
 
 //
 // [Serialize] and [Deserialize] are implemented manually
@@ -108,7 +106,6 @@ filters! {
 mod filter_json_serde {
     use serde::{Serialize, Serializer, Deserialize, Deserializer};
     use super::{FilterJson, EqualFilter, RangeFilter};
-    use serde::ser::SerializeMap;
 
     #[derive(Serialize)]
     #[serde(tag = "type")]

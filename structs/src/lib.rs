@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, Utc};
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -35,14 +35,6 @@ pub struct RankingVideoData {
     pub start_time: DateTime<FixedOffset>,
 }
 
-fn is_max_value_u32(v: &u32) -> bool {
-    *v == u32::max_value()
-}
-
-fn is_max_value_u64(v: &u64) -> bool {
-    *v == u64::max_value()
-}
-
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
 pub struct RankingBin {
@@ -62,4 +54,23 @@ pub struct RankingVideoDataBin {
     #[serde(rename = "startTime")]
     pub start_time: DateTime<FixedOffset>,
     pub ranking_counter: u64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NewVideoInfo {
+    pub last_modified: DateTime<Utc>,
+    pub content_id: String,
+    pub title: String,
+    pub description	: Option<String>,
+    pub view_counter: u32,
+    pub mylist_counter: u32,
+    pub length_seconds: std::time::Duration,
+    pub thumbnail_url: Option<String>,
+    pub start_time: DateTime<Utc>,
+    pub last_res_body: Option<String>,
+    pub comment_counter: u32,
+    pub last_comment_time: Option<DateTime<Utc>>,
+    pub category_tags: Option<String>,
+    pub tags: Vec<String>,
+    pub genre: Option<String>,
 }

@@ -10,6 +10,7 @@ impl ProgressStatus {
     pub fn new(multi: &MultiProgress) -> ProgressStatus {
         let progress = multi.add(ProgressBar::new(1));
         set_style(&progress);
+        progress.enable_steady_tick(10);
         ProgressStatus {
             progress,
             prefix: String::new(),
@@ -18,11 +19,9 @@ impl ProgressStatus {
 
     pub fn add_err(&mut self, p0: &str) {
         self.progress.println(format!("err: {}", p0));
-        self.progress.tick()
     }
     pub fn add_info(&mut self, p0: &str) {
         self.progress.println(format!("inf: {}", p0));
-        self.progress.tick()
     }
 
     pub fn inc(&self) {
@@ -50,7 +49,6 @@ impl ProgressStatus {
 
     pub fn set_message_to_progress(&self, msg: &str) {
         self.progress.set_message(msg);
-        self.progress.tick();
     }
 }
 

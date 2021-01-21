@@ -1,9 +1,6 @@
 use clap::*;
-use chrono::{FixedOffset, TimeZone, Date, NaiveDate, Duration, DateTime};
+use chrono::{FixedOffset, TimeZone, NaiveDate, Duration, DateTime};
 use std::process::exit;
-use nico_snapshot_api::FilterJson;
-use std::io::BufReader;
-use std::fs::File;
 
 macro_rules! exiting_errf {
     ($($arg:tt)*) => ({
@@ -13,7 +10,6 @@ macro_rules! exiting_errf {
 }
 
 const DATE_FORMAT_WITH_TIME: &str = "%Y/%m/%d";
-const ZERO_O_CLOCK_POSTFIX: &str = " 00:00:00";
 
 pub fn parse_options() -> Options {
     let jst_timezone = FixedOffset::east(9 * 3600);
@@ -33,12 +29,16 @@ pub fn parse_options() -> Options {
             .takes_value(true)
             .short("-d")
             .long("--duration"))
-        .arg(Arg::with_name("filter")
-            // https://bit.ly/3aOXNn6: https://site.nicovideo.jp/search-api-docs/snapshot#＊4-jsonフィルタ指定仕様
-            .help("path to filter json. see https://bit.ly/3aOXNn6")
+        .arg(Arg::with_name("out-to")
+            .help("file to write to. defaults stdout")
             .takes_value(true)
-            .short("-f")
-            .long("--filter"))
+            .short("-o")
+            .long("--out"))
+        .arg(Arg::with_name("contents-id-out")
+            .help("file to write contents id proceed.")
+            .takes_value(true)
+            .short("-c")
+            .long("--content-id-out"))
         ;
     let matches = app.get_matches();
 
@@ -48,7 +48,7 @@ pub fn parse_options() -> Options {
                 .unwrap_or_else(|err| exiting_errf!("since: {}", err)))
             .unwrap()
             .and_hms(0, 0, 0))
-        .unwrap_or_else(|| jst_timezone.ymd(2007, 03, 06).and_hms(0, 0, 0));
+        .unwrap_or_else(|| jst_timezone.ymd(2007, 03, 01).and_hms(0, 0, 0));
 
     let until = matches.value_of("until")
         .map(|date| jst_timezone
@@ -62,19 +62,16 @@ pub fn parse_options() -> Options {
             .unwrap_or_else(|err| exiting_errf!("duration: {}", err))).unwrap())
         .unwrap_or_else(|| Duration::weeks(1));
 
-    let filter = matches.value_of("filter")
-        .map(|path| {
-            let file = File::open(path).unwrap_or_else(|err| exiting_errf!("filter: {}", err));
-            let file = BufReader::new(file);
-            serde_json::from_reader::<_, FilterJson>(file)
-                .unwrap_or_else(|err| exiting_errf!("filter: {}", err))
-        });
+    let out = matches.value_of("out-to").map(|x| x.to_owned());
+
+    let contents_id_out = matches.value_of("contents-id-out").map(|x| x.to_owned());
 
     Options {
         since,
         until,
         duration,
-        filter,
+        out,
+        contents_id_out
     }
 }
 
@@ -82,5 +79,6 @@ pub struct Options {
     pub since: DateTime<FixedOffset>,
     pub until: Option<DateTime<FixedOffset>>,
     pub duration: Duration,
-    pub filter: Option<FilterJson>,
+    pub out: Option<String>,
+    pub contents_id_out: Option<String>,
 }
