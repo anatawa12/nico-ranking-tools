@@ -88,7 +88,8 @@ fn process_a_chunk<'a, Itr>(versions: Itr, output_dir: &String, info: &PageInfo)
     write_heading(&mut output_html, info)?;
     writeln!(&mut output_html, r#"<ul class="container">"#)?;
 
-    for (rank, version) in versions {
+    for (index, version) in versions {
+        let rank = index + 1;
         let sum_dur = version.view_counter * version.length_seconds;
         let video_id = &version.content_id;
         let view_count = version.view_counter as u64;
