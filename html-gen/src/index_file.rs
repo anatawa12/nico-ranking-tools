@@ -90,6 +90,9 @@ fn process_index(
     writeln!(output_html, r#"</head>"#)?;
     writeln!(output_html, r#"<body>"#)?;
     writeln!(output_html, "{}", include_str!("template.body.head.html"))?;
+    if is_root {
+        writeln!(output_html, "{}", include_str!("root-index.body.head.html"))?;
+    }
     if let Some(range) = &range {
         writeln!(output_html, r#"<header class="header">"#)?;
         writeln!(output_html, r#"    <div class="center">{}</div>"#, range)?;
