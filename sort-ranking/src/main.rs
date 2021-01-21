@@ -6,6 +6,7 @@ use rayon::prelude::*;
 use std::time::Instant;
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::progress_reader::ProgressReader;
+use std::cmp::Ordering;
 
 mod options;
 mod option_expr_parser;
@@ -33,7 +34,7 @@ fn main() {
 
     let start = Instant::now();
     eprintln!("sorting...");
-    videos.par_sort_by_key(|data| { key_gen(data) });
+    videos.par_sort_by_key(|data| key_gen(data).reversing());
     eprintln!("sorting took {}s", (Instant::now() - start).as_secs_f64());
 
     let start = Instant::now();
@@ -71,5 +72,38 @@ fn key_generator_of(for_type: RankingType) -> Box<dyn Fn(&NewVideoInfo) -> u64 +
         RankingType::WatchLng => Box::new(|data| {
             data.length_seconds.as_secs()
         }),
+    }
+}
+
+struct Reversing<T: Ord>(T);
+
+impl <T : Ord> Eq for Reversing<T> {
+}
+
+impl <T : Ord> PartialEq<Self> for Reversing<T> {
+    fn eq(&self, other: &Reversing<T>) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl <T : Ord> Ord for Reversing<T> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.cmp(&other.0).reverse()
+    }
+}
+
+impl <T : Ord> PartialOrd<Self> for Reversing<T> {
+    fn partial_cmp(&self, other: &Reversing<T>) -> Option<Ordering> {
+        self.0.partial_cmp(&other.0).map(|x| x.reverse())
+    }
+}
+
+trait ReversingOrd : Ord + Sized {
+    fn reversing(self) -> Reversing<Self>;
+}
+
+impl <T: Ord> ReversingOrd for T {
+    fn reversing(self) -> Reversing<Self> {
+        Reversing(self)
     }
 }
