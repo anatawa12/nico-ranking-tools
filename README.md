@@ -5,9 +5,7 @@ Tools for ranking of the sum time humanity has watched a video.
 
 ## Index
 - [get-nico-data](#get-nico-data)
-- [merge-nico-data](#merge-nico-data)
 - [sort-ranking](#sort-ranking)
-- [merge-rankings](#merge-rankings)
 - [html-gen](#html-gen)
 - [集計ステップ](#集計ステップ)
 
@@ -18,9 +16,15 @@ Tools for ranking of the sum time humanity has watched a video.
 ### 使い方
 
 ```
-get-nico-data
-# or
-get-nico-data <since> <until> <per>
+get-nico-data [OPTIONS]
+
+OPTIONS:
+    -c, --content-id-out <contents-id-out>    file to write contents id proceed.
+    -d, --duration <duration>                 duration to be got at a time. defaults 1 week
+    -o, --out <out-to>                        file to write to. defaults stdout
+    -s, --since <since>                       the begin date of find range. defaults the date starts SMILEVIDEO,
+                                              2020/03/06
+    -u, --until <until>                       the last date of find range. defaults now
 ```
 
 引数なしの場合、SMILEVIDEO[(wikipedia)][SMILEVIDEO-wikipedia]の開始日時である
@@ -31,36 +35,7 @@ get-nico-data <since> <until> <per>
 
 ### 出力
 
-カレントディレクトリ以下に次のような形式で出力する
-```
-cwd
- `--out
-     `--yyyy/mm/dd
-         +--version.json # snapshotのバージョン
-         `--ranking_xxxxxx.json # レスポンスを連番で
-```
-
-## merge-nico-data
-
-[get-nico-data] で取得したデータを各週毎に一つのjsonにまとめる
-
-### 使い方
-
-```
-merge-nico-data <options> <target directory>
-```
-
-`out`ディレクトリを引数に指定する
-
-### オプション
-
-- `-a`: バージョンごとに`merged_xx.bin`をカレントディレクトリに作成する
-- `-d`: ranking_xxxx.jsonおよびversion.jsonを削除
-
-### 出力
-
-それぞれのディレクトリに`merged.bin`が作成される。
-rankingと同形式にmeta内にlast_modifiedが追加された形のjsonとなる。
+標準出力または`-o`で指定したファイルに.binを生成
 
 ## sort-ranking
 
@@ -81,25 +56,7 @@ sort-ranking <input bin> <output bin> <ranking-type>
 
 ### 出力
 
-ranking_counterが指定された`merged.bin`形式
-
-## merge-rankings
-
-`sort-ranking` で生成された複数のランキングバイナリを読み込み、csvに出力する
-
-### 使い方
-
-```
-merge-rankings <out csv> <ranking bin files...>
-```
-
-### 出力
-
-要素が順に ``rank, ranking key, video id, get at, posted at, view count, video length`` なcsv. (ヘッダ行あり)
-
-[get-nico-data]: #get-nico-data
-[snapshot-v2-api]: https://site.nicovideo.jp/search-api-docs/snapshot
-[SMILEVIDEO-wikipedia]: https://ja.wikipedia.org/wiki/SMILEVIDEO
+ソート済のbinが生成される
 
 ## html-gen
 
@@ -108,7 +65,7 @@ csvからランキングの五番状に表示するhtmlを生成する
 ### 使い方
 
 ```
-html-gen <input csv> <output dir>
+html-gen <input bin> <output dir>
 ```
 
 ### 出力
@@ -118,6 +75,5 @@ html-gen <input csv> <output dir>
 ## 集計ステップ
 
 1. get-nico-dataで取得
-2. merge-nico-data -aでまとめる
-3. sort-rankingで各週毎にソートする
-4. merge-rankingsでcsvにする
+3. sort-rankingでソートする
+4. html-genで生成する
